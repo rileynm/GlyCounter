@@ -2228,14 +2228,14 @@ namespace GlyCounter
             double percentageGlycoPep_etd = (double)numberOfMS2scansWithIntactGlycoPep_etd / (double)numberOfETDscans * 100;
 
             outputSummary.WriteLine("\tTotal\tHCD\tETD\t%Total\t%HCD\t%ETD");
-            outputSummary.WriteLine("All PSMs\t" + numberOfMS2scans + "\t" + numberOfHCDscans + "\t" + numberOfETDscans + "\tNA\tNA\tNA");
+            outputSummary.WriteLine("All GlycoPSMs\t" + numberOfMS2scans + "\t" + numberOfHCDscans + "\t" + numberOfETDscans + "\tNA\tNA\tNA");
 
-            outputSummary.WriteLine("PSMs with Y-ions\t" + numberOfMS2scansWithYions + "\t" + numberOfMS2scansWithYions_hcd + "\t" + numberOfMS2scansWithYions_etd
+            outputSummary.WriteLine("GlycoPSMs with Y-ions\t" + numberOfMS2scansWithYions + "\t" + numberOfMS2scansWithYions_hcd + "\t" + numberOfMS2scansWithYions_etd
                 + "\t" + percentageYions + "\t" + percentageYions_hcd + "\t" + percentageYions_etd);
 
-            outputSummary.WriteLine("PSMs with Y0\t" + numberOfMS2scansWithY0 + "\t" + numberOfMS2scansWithY0_hcd + "\t" + numberOfMS2scansWithY0_etd
+            outputSummary.WriteLine("GlycoPSMs with Y0\t" + numberOfMS2scansWithY0 + "\t" + numberOfMS2scansWithY0_hcd + "\t" + numberOfMS2scansWithY0_etd
                 + "\t" + percentageY0 + "\t" + percentageY0_hcd + "\t" + percentageY0_etd);
-            outputSummary.WriteLine("PSMs with IntactGlycoPep\t" + numberOfMS2scansWithIntactGlycoPep + "\t" + numberOfMS2scansWithIntactGlycoPep_hcd + "\t" + numberOfMS2scansWithIntactGlycoPep_etd
+            outputSummary.WriteLine("GlycoPSMs with IntactGlycoPep\t" + numberOfMS2scansWithIntactGlycoPep + "\t" + numberOfMS2scansWithIntactGlycoPep_hcd + "\t" + numberOfMS2scansWithIntactGlycoPep_etd
                 + "\t" + percentageGlycoPep + "\t" + percentageGlycoPep_hcd + "\t" + percentageGlycoPep_etd);
 
 
@@ -2273,7 +2273,7 @@ namespace GlyCounter
             timer1.Stop();
             Ynaught_FinishTimeLabel.Text = "Finished at: " + DateTime.Now.ToString("HH:mm:ss");
             MessageBox.Show("Finished.");
-            oxoniumIonHashSet.Clear();
+            yIonHashSet.Clear();
         }
 
 

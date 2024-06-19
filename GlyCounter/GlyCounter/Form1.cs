@@ -420,14 +420,14 @@ namespace GlyCounter
                                 }
                                 double scanTIC = rawFile.GetTIC(i);
                                 double scanInjTime = rawFile.GetInjectionTime(i);
-                                string fragmenationType = rawFile.GetDissociationType(i).ToString();
+                                string fragmentationType = rawFile.GetDissociationType(i).ToString();
                                 //double parentScan = rawFile.GetParentSpectrumNumber(i);
                                 double retentionTime = rawFile.GetRetentionTime(i);
 
                                 List<double> oxoRanks = new List<double>();
 
-                                outputOxo.Write(i + "\t" + retentionTime + "\t" + scanTIC + "\t" + totalOxoSignal + "\t" + scanInjTime + "\t" + fragmenationType + "\t" + parentScan + "\t" + numberOfOxoIons + "\t" + totalOxoSignal + "\t");
-                                outputPeakDepth.Write(i + "\t" + retentionTime + "\t" + scanTIC + "\t" + totalOxoSignal + "\t" + scanInjTime + "\t" + fragmenationType + "\t" + parentScan + "\t" + numberOfOxoIons + "\t" + totalOxoSignal + "\t");
+                                outputOxo.Write(i + "\t" + retentionTime + "\t" + scanTIC + "\t" + totalOxoSignal + "\t" + scanInjTime + "\t" + fragmentationType + "\t" + parentScan + "\t" + numberOfOxoIons + "\t" + totalOxoSignal + "\t");
+                                outputPeakDepth.Write(i + "\t" + retentionTime + "\t" + scanTIC + "\t" + totalOxoSignal + "\t" + scanInjTime + "\t" + fragmentationType + "\t" + parentScan + "\t" + numberOfOxoIons + "\t" + totalOxoSignal + "\t");
 
                                 foreach (OxoniumIon oxoIon in oxoniumIonHashSet)
                                 {

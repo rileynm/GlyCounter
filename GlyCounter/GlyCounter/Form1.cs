@@ -6,6 +6,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using CSMSL.Proteomics;
 using CSMSL.Chemistry;
+using PSI_Interface.MSData;
 
 
 namespace GlyCounter
@@ -993,6 +994,26 @@ namespace GlyCounter
         public static Dictionary<double, int> RankOrderPeaks(Dictionary<double, int> dictionary, ThermoSpectrum spectrum)
         {
             List<double> peakIntensities = spectrum.GetIntensities().ToList<double>();
+
+            var sortedpeakIntensities = peakIntensities.OrderByDescending(x => x);
+
+            int i = 1;
+            foreach (double value in sortedpeakIntensities)
+            {
+                if (!dictionary.ContainsKey(value))
+                {
+                    dictionary.Add(value, i);
+                    i++;
+                }
+            }
+
+            //MessageBox.Show("Peaks: " + peakIntensities.Count + " , i: " + i);
+            return dictionary;
+        }
+
+        public static Dictionary<double, int> RankOrderPeaks_mzml(Dictionary<double, int> dictionary, SimpleMzMLReader.SimpleSpectrum spectrum)
+        {
+            List<double> peakIntensities = spectrum.Intensities.ToList<double>();
 
             var sortedpeakIntensities = peakIntensities.OrderByDescending(x => x);
 

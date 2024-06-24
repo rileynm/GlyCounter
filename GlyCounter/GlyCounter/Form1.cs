@@ -1,11 +1,10 @@
 using CSMSL;
+using CSMSL.IO.Thermo;
+using CSMSL.Proteomics;
 using MathNet.Numerics.Statistics;
 using LumenWorks.Framework.IO.Csv;
-using CSMSL.IO.Thermo;
 using System.ComponentModel;
 using System.Diagnostics;
-using CSMSL.Proteomics;
-using CSMSL.Chemistry;
 using PSI_Interface.MSData;
 
 
@@ -27,6 +26,7 @@ namespace GlyCounter
         double oxoCountRequirement_hcd_user = 0;
         double oxoCountRequirement_etd_user = 0;
         bool using204 = false;
+        //add in intensity threshold
 
         //Ynaught variables
         HashSet<Yion> yIonHashSet = new HashSet<Yion>();
@@ -97,6 +97,8 @@ namespace GlyCounter
 
             if (CanCovertDouble(OxoCountRequireBox_etd.Text, oxoCountRequirement_etd_user))
                 oxoCountRequirement_etd_user = Convert.ToDouble(OxoCountRequireBox_etd.Text);
+
+            //add in intensity threshold
 
 
             MessageBox.Show("You are using these settings:\r\nppmTol: " + ppmTolerance + "\r\nSNthreshold: " + SNthreshold + "\r\nPeakDepthThreshold_HCD: " + peakDepthThreshold_hcd
@@ -1893,7 +1895,7 @@ namespace GlyCounter
                     double precursorMZ = double.Parse(txt["Observed M/Z"]);
 
                     //only process if it's a glycopeptide
-                    if(!totalGlycanCompToBeParsed.Equals(""))
+                    if (!totalGlycanCompToBeParsed.Equals(""))
                     {
                         //read in modifications and assign to peptide
                         if (modsToBeParsed.Length > 0)
@@ -2195,7 +2197,7 @@ namespace GlyCounter
                     //print out information for this scan that is not Y-ions
                     outputYion.Write(psm.spectrumNumber + "\t" + psm.peptideNoGlycanMods.SequenceWithModifications + "\t" + psm.peptide.SequenceWithModifications + "\t" +
                         psm.totalGlycanComposition + "\t" + psm.precursorMZ + "\t" + psm.charge + "\t" + retentionTime + "\t" + numberOfChargeStatesConsidered + "\t" +
-                        scanInjTime + "\t" + fragmenationType + "\t" + parentScan + "\t" + numberOfYions + "\t" + scanTIC + "\t" +  totalYionSignal + "\t" + yIonTICfraction + "\t");
+                        scanInjTime + "\t" + fragmenationType + "\t" + parentScan + "\t" + numberOfYions + "\t" + scanTIC + "\t" + totalYionSignal + "\t" + yIonTICfraction + "\t");
                     outputPeakDepth.Write(psm.spectrumNumber + "\t" + psm.peptideNoGlycanMods.SequenceWithModifications + "\t" + psm.peptide.SequenceWithModifications + "\t" +
                         psm.totalGlycanComposition + "\t" + psm.precursorMZ + "\t" + psm.charge + "\t" + retentionTime + "\t" + numberOfChargeStatesConsidered + "\t" +
                         scanInjTime + "\t" + fragmenationType + "\t" + parentScan + "\t" + numberOfYions + "\t" + scanTIC + "\t" + totalYionSignal + "\t" + yIonTICfraction + "\t");
@@ -2278,12 +2280,12 @@ namespace GlyCounter
                     currentGlycanSource = yIon.glycanSource;
                 }
 
-                if(!yIon.glycanSource.Equals(""))
+                if (!yIon.glycanSource.Equals(""))
                 {
                     outputSummary.WriteLine(yIon.description + "\t" + total + "\t" + yIon.hcdCount + "\t" + yIon.etdCount
                                         + "\t" + percentTotal + "\t" + percentHCD + "\t" + percentETD);
                 }
-                
+
             }
 
             outputSummary.Close();
@@ -2297,6 +2299,6 @@ namespace GlyCounter
             yIonHashSet.Clear();
         }
 
-
+        
     }
 }

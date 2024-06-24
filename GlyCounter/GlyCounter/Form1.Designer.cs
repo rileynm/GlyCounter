@@ -82,6 +82,7 @@
             GlyCounterLogo = new PictureBox();
             GlyCounter_AllTabs = new TabControl();
             GlyCounter_Tab = new TabPage();
+            intensityThresholdTextBox = new TextBox();
             VersionNumber_Label = new Label();
             YnaughtTab = new TabPage();
             BrowseGlycans_Button = new Button();
@@ -134,6 +135,9 @@
             BrowseGlycoPepIDs = new Button();
             LoadInGlycoPepIDs_TextBox = new TextBox();
             timer2 = new System.Windows.Forms.Timer(components);
+            intensityThresholdLabel = new Label();
+            label1 = new Label();
+            label2 = new Label();
             ((System.ComponentModel.ISupportInitialize)GlyCounterLogo).BeginInit();
             GlyCounter_AllTabs.SuspendLayout();
             GlyCounter_Tab.SuspendLayout();
@@ -314,7 +318,7 @@
             // 
             // ppmTol_textBox
             // 
-            ppmTol_textBox.Location = new Point(918, 235);
+            ppmTol_textBox.Location = new Point(916, 226);
             ppmTol_textBox.Margin = new Padding(4, 3, 4, 3);
             ppmTol_textBox.Name = "ppmTol_textBox";
             ppmTol_textBox.Size = new Size(61, 23);
@@ -324,7 +328,7 @@
             // ppmTol_label
             // 
             ppmTol_label.AutoSize = true;
-            ppmTol_label.Location = new Point(983, 238);
+            ppmTol_label.Location = new Point(983, 229);
             ppmTol_label.Margin = new Padding(4, 0, 4, 0);
             ppmTol_label.Name = "ppmTol_label";
             ppmTol_label.Size = new Size(85, 15);
@@ -399,7 +403,7 @@
             // 
             // SN_textBox
             // 
-            SN_textBox.Location = new Point(918, 263);
+            SN_textBox.Location = new Point(916, 254);
             SN_textBox.Margin = new Padding(2);
             SN_textBox.Name = "SN_textBox";
             SN_textBox.Size = new Size(61, 23);
@@ -409,7 +413,7 @@
             // SN_label
             // 
             SN_label.AutoSize = true;
-            SN_label.Location = new Point(983, 266);
+            SN_label.Location = new Point(986, 244);
             SN_label.Margin = new Padding(2, 0, 2, 0);
             SN_label.Name = "SN_label";
             SN_label.Size = new Size(161, 15);
@@ -672,6 +676,10 @@
             // 
             // GlyCounter_Tab
             // 
+            GlyCounter_Tab.Controls.Add(label2);
+            GlyCounter_Tab.Controls.Add(label1);
+            GlyCounter_Tab.Controls.Add(intensityThresholdLabel);
+            GlyCounter_Tab.Controls.Add(intensityThresholdTextBox);
             GlyCounter_Tab.Controls.Add(VersionNumber_Label);
             GlyCounter_Tab.Controls.Add(textBox1);
             GlyCounter_Tab.Controls.Add(hcdTICfraction_Label);
@@ -729,6 +737,14 @@
             GlyCounter_Tab.TabIndex = 0;
             GlyCounter_Tab.Text = "Pre-ID";
             GlyCounter_Tab.UseVisualStyleBackColor = true;
+            // 
+            // intensityThresholdTextBox
+            // 
+            intensityThresholdTextBox.Location = new Point(916, 284);
+            intensityThresholdTextBox.Name = "intensityThresholdTextBox";
+            intensityThresholdTextBox.Size = new Size(61, 23);
+            intensityThresholdTextBox.TabIndex = 55;
+            intensityThresholdTextBox.Text = "1000";
             // 
             // VersionNumber_Label
             // 
@@ -1268,6 +1284,33 @@
             LoadInGlycoPepIDs_TextBox.Text = "Upload glycopeptide IDs (e.g., PSMs file) here: tab-delimited .txt with headers \"Spectrum Number\", \"Charge State\", \"Peptide Sequence\", and \"Modifications\"";
             LoadInGlycoPepIDs_TextBox.TextChanged += LoadInGlycoPepIDs_TextBox_TextChanged;
             // 
+            // intensityThresholdLabel
+            // 
+            intensityThresholdLabel.AutoSize = true;
+            intensityThresholdLabel.Location = new Point(1016, 292);
+            intensityThresholdLabel.Name = "intensityThresholdLabel";
+            intensityThresholdLabel.Size = new Size(107, 15);
+            intensityThresholdLabel.TabIndex = 56;
+            intensityThresholdLabel.Text = "Intensity Threshold";
+            // 
+            // label1
+            // 
+            label1.AutoSize = true;
+            label1.Location = new Point(983, 262);
+            label1.Name = "label1";
+            label1.Size = new Size(185, 15);
+            label1.TabIndex = 57;
+            label1.Text = "if mass analyzer does not have SN";
+            // 
+            // label2
+            // 
+            label2.AutoSize = true;
+            label2.Location = new Point(986, 277);
+            label2.Name = "label2";
+            label2.Size = new Size(167, 15);
+            label2.TabIndex = 58;
+            label2.Text = "use intensity threshold instead";
+            // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
@@ -1394,5 +1437,9 @@
         private Label VersionNumber_Label;
         private TextBox LoadInGlycanMasses_TextBox;
         private Button BrowseGlycans_Button;
+        private TextBox intensityThresholdTextBox;
+        private Label label2;
+        private Label label1;
+        private Label intensityThresholdLabel;
     }
 }

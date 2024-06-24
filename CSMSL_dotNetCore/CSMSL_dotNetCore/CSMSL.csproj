@@ -81,6 +81,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="LumenWorksCsvReader" Version="4.0.0" />
+    <PackageReference Include="MathNet.Numerics" Version="5.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Reference Include="OpenMcdf">
       <HintPath>IO\VendorLibraries\dotNetCore\OpenMcdf.dll</HintPath>
       <Private>True</Private>

@@ -82,6 +82,8 @@
             GlyCounterLogo = new PictureBox();
             GlyCounter_AllTabs = new TabControl();
             GlyCounter_Tab = new TabPage();
+            label1 = new Label();
+            intensityThresholdLabel = new Label();
             intensityThresholdTextBox = new TextBox();
             VersionNumber_Label = new Label();
             YnaughtTab = new TabPage();
@@ -135,9 +137,6 @@
             BrowseGlycoPepIDs = new Button();
             LoadInGlycoPepIDs_TextBox = new TextBox();
             timer2 = new System.Windows.Forms.Timer(components);
-            intensityThresholdLabel = new Label();
-            label1 = new Label();
-            label2 = new Label();
             ((System.ComponentModel.ISupportInitialize)GlyCounterLogo).BeginInit();
             GlyCounter_AllTabs.SuspendLayout();
             GlyCounter_Tab.SuspendLayout();
@@ -153,7 +152,7 @@
             textBox1.Name = "textBox1";
             textBox1.Size = new Size(1069, 25);
             textBox1.TabIndex = 0;
-            textBox1.Text = "Upload .raw Files Here";
+            textBox1.Text = "Upload .raw or .mzML Files Here";
             textBox1.TextChanged += textBox1_TextChanged;
             // 
             // browseButton
@@ -413,7 +412,7 @@
             // SN_label
             // 
             SN_label.AutoSize = true;
-            SN_label.Location = new Point(986, 244);
+            SN_label.Location = new Point(984, 257);
             SN_label.Margin = new Padding(2, 0, 2, 0);
             SN_label.Name = "SN_label";
             SN_label.Size = new Size(161, 15);
@@ -676,7 +675,6 @@
             // 
             // GlyCounter_Tab
             // 
-            GlyCounter_Tab.Controls.Add(label2);
             GlyCounter_Tab.Controls.Add(label1);
             GlyCounter_Tab.Controls.Add(intensityThresholdLabel);
             GlyCounter_Tab.Controls.Add(intensityThresholdTextBox);
@@ -737,6 +735,24 @@
             GlyCounter_Tab.TabIndex = 0;
             GlyCounter_Tab.Text = "Pre-ID";
             GlyCounter_Tab.UseVisualStyleBackColor = true;
+            // 
+            // label1
+            // 
+            label1.AutoSize = true;
+            label1.Location = new Point(983, 292);
+            label1.Name = "label1";
+            label1.Size = new Size(213, 15);
+            label1.TabIndex = 57;
+            label1.Text = "used if mass analyzer does not have SN";
+            // 
+            // intensityThresholdLabel
+            // 
+            intensityThresholdLabel.AutoSize = true;
+            intensityThresholdLabel.Location = new Point(984, 277);
+            intensityThresholdLabel.Name = "intensityThresholdLabel";
+            intensityThresholdLabel.Size = new Size(107, 15);
+            intensityThresholdLabel.TabIndex = 56;
+            intensityThresholdLabel.Text = "Intensity Threshold";
             // 
             // intensityThresholdTextBox
             // 
@@ -1283,33 +1299,6 @@
             LoadInGlycoPepIDs_TextBox.TabIndex = 0;
             LoadInGlycoPepIDs_TextBox.Text = "Upload glycopeptide IDs (e.g., PSMs file) here: tab-delimited .txt with headers \"Spectrum Number\", \"Charge State\", \"Peptide Sequence\", and \"Modifications\"";
             LoadInGlycoPepIDs_TextBox.TextChanged += LoadInGlycoPepIDs_TextBox_TextChanged;
-            // 
-            // intensityThresholdLabel
-            // 
-            intensityThresholdLabel.AutoSize = true;
-            intensityThresholdLabel.Location = new Point(1016, 292);
-            intensityThresholdLabel.Name = "intensityThresholdLabel";
-            intensityThresholdLabel.Size = new Size(107, 15);
-            intensityThresholdLabel.TabIndex = 56;
-            intensityThresholdLabel.Text = "Intensity Threshold";
-            // 
-            // label1
-            // 
-            label1.AutoSize = true;
-            label1.Location = new Point(983, 262);
-            label1.Name = "label1";
-            label1.Size = new Size(185, 15);
-            label1.TabIndex = 57;
-            label1.Text = "if mass analyzer does not have SN";
-            // 
-            // label2
-            // 
-            label2.AutoSize = true;
-            label2.Location = new Point(986, 277);
-            label2.Name = "label2";
-            label2.Size = new Size(167, 15);
-            label2.TabIndex = 58;
-            label2.Text = "use intensity threshold instead";
             // 
             // Form1
             // 

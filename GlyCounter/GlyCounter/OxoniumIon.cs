@@ -16,5 +16,6 @@ namespace GlyCounter
         public int peakDepth { get; set; }
         public int hcdCount { get; set; }
         public int etdCount { get; set; }
+        public int uvpdCount { get; set; }
     }
 }

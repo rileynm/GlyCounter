@@ -104,7 +104,7 @@ namespace GlyCounter
                 peakDepthThreshold_etd = Convert.ToDouble(PeakDepth_Box_ETD.Text);
 
             if (CanConvertDouble(PeakDepth_Box_UVPD.Text, peakDepthThreshold_uvpd))
-                peakDepthThreshold_uvpd = Convert.ToDouble(PeakDepth_Box_UVPD);
+                peakDepthThreshold_uvpd = Convert.ToDouble(PeakDepth_Box_UVPD.Text);
 
             if (CanConvertDouble(hcdTICfraction.Text, oxoTICfractionThreshold_hcd))
                 oxoTICfractionThreshold_hcd = Convert.ToDouble(hcdTICfraction.Text);
@@ -989,7 +989,7 @@ namespace GlyCounter
                                 {
                                     oxoCountRequirement = oxoCountRequirement_uvpd_user > 0
                                         ? oxoCountRequirement_uvpd_user
-                                        : halfTotalList / 2;
+                                        : halfTotalList;
                                 }
 
 

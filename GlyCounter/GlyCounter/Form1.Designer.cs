@@ -82,6 +82,13 @@
             GlyCounterLogo = new PictureBox();
             GlyCounter_AllTabs = new TabControl();
             GlyCounter_Tab = new TabPage();
+            OxoCountThreshold_uvpd_label = new Label();
+            uvpdTICfraction_Label = new Label();
+            PeakDepth_label_UVPD = new Label();
+            OxoCountRequireBox_uvpd = new TextBox();
+            uvpdTICfraction = new TextBox();
+            PeakDepth_Box_UVPD = new TextBox();
+            UVPDsettingslabel = new Label();
             label1 = new Label();
             intensityThresholdLabel = new Label();
             intensityThresholdTextBox = new TextBox();
@@ -137,13 +144,6 @@
             BrowseGlycoPepIDs = new Button();
             LoadInGlycoPepIDs_TextBox = new TextBox();
             timer2 = new System.Windows.Forms.Timer(components);
-            UVPDsettingslabel = new Label();
-            PeakDepth_Box_UVPD = new TextBox();
-            uvpdTICfraction = new TextBox();
-            OxoCountRequireBox_uvpd = new TextBox();
-            PeakDepth_label_UVPD = new Label();
-            uvpdTICfraction_Label = new Label();
-            OxoCountThreshold_uvpd_label = new Label();
             ((System.ComponentModel.ISupportInitialize)GlyCounterLogo).BeginInit();
             GlyCounter_AllTabs.SuspendLayout();
             GlyCounter_Tab.SuspendLayout();
@@ -157,14 +157,14 @@
             textBox1.Margin = new Padding(4, 3, 4, 3);
             textBox1.Multiline = true;
             textBox1.Name = "textBox1";
-            textBox1.Size = new Size(1069, 25);
+            textBox1.Size = new Size(1085, 25);
             textBox1.TabIndex = 0;
             textBox1.Text = "Upload .raw or .mzML Files Here";
             textBox1.TextChanged += textBox1_TextChanged;
             // 
             // browseButton
             // 
-            browseButton.Location = new Point(1095, 18);
+            browseButton.Location = new Point(1109, 18);
             browseButton.Margin = new Padding(4, 3, 4, 3);
             browseButton.Name = "browseButton";
             browseButton.Size = new Size(88, 25);
@@ -212,7 +212,7 @@
             // 
             SialicAcidCheckedListBox.CheckOnClick = true;
             SialicAcidCheckedListBox.FormattingEnabled = true;
-            SialicAcidCheckedListBox.Items.AddRange(new object[] { "274.0921, NeuAc-H2O", "292.1028, NeuAc", "316.103, NeuAc[Ac] - H2O", "334.113, NeuAc[Ac]", "290.0870, NeuGc - H2O", "308.0976, NeuGc", "332.098, NeuGc[Ac] - H2O", "350.108, NeuGc[Ac]" });
+            SialicAcidCheckedListBox.Items.AddRange(new object[] { "274.0921, NeuAc-H2O", "292.1028, NeuAc", "316.103, NeuAc[Ac] - H2O", "334.113, NeuAc[Ac]", "290.0870, NeuGc - H2O", "308.0976, NeuGc", "332.098, NeuGc[Ac] - H2O", "350.1081, NeuGc[Ac]" });
             SialicAcidCheckedListBox.Location = new Point(315, 137);
             SialicAcidCheckedListBox.Margin = new Padding(4, 3, 4, 3);
             SialicAcidCheckedListBox.Name = "SialicAcidCheckedListBox";
@@ -305,7 +305,7 @@
             StartButton.Location = new Point(918, 565);
             StartButton.Margin = new Padding(4, 3, 4, 3);
             StartButton.Name = "StartButton";
-            StartButton.Size = new Size(265, 62);
+            StartButton.Size = new Size(276, 62);
             StartButton.TabIndex = 0;
             StartButton.Text = "Start";
             StartButton.UseVisualStyleBackColor = true;
@@ -313,10 +313,10 @@
             // 
             // ClearButton
             // 
-            ClearButton.Location = new Point(814, 54);
+            ClearButton.Location = new Point(919, 49);
             ClearButton.Margin = new Padding(4, 3, 4, 3);
             ClearButton.Name = "ClearButton";
-            ClearButton.Size = new Size(265, 36);
+            ClearButton.Size = new Size(278, 36);
             ClearButton.TabIndex = 0;
             ClearButton.Text = "Clear Selections";
             ClearButton.UseVisualStyleBackColor = true;
@@ -343,10 +343,10 @@
             // 
             // CheckAll_Button
             // 
-            CheckAll_Button.Location = new Point(245, 54);
+            CheckAll_Button.Location = new Point(314, 49);
             CheckAll_Button.Margin = new Padding(4, 3, 4, 3);
             CheckAll_Button.Name = "CheckAll_Button";
-            CheckAll_Button.Size = new Size(266, 36);
+            CheckAll_Button.Size = new Size(279, 36);
             CheckAll_Button.TabIndex = 22;
             CheckAll_Button.Text = "Check All Ions";
             CheckAll_Button.UseVisualStyleBackColor = true;
@@ -526,10 +526,10 @@
             // 
             // MostCommonButton
             // 
-            MostCommonButton.Location = new Point(530, 54);
+            MostCommonButton.Location = new Point(619, 49);
             MostCommonButton.Margin = new Padding(4, 3, 4, 3);
             MostCommonButton.Name = "MostCommonButton";
-            MostCommonButton.Size = new Size(265, 36);
+            MostCommonButton.Size = new Size(278, 36);
             MostCommonButton.TabIndex = 40;
             MostCommonButton.Text = "Check Common Ions";
             MostCommonButton.UseVisualStyleBackColor = true;
@@ -613,14 +613,14 @@
             uploadCustomTextBox.Margin = new Padding(4, 3, 4, 3);
             uploadCustomTextBox.Multiline = true;
             uploadCustomTextBox.Name = "uploadCustomTextBox";
-            uploadCustomTextBox.Size = new Size(1069, 25);
+            uploadCustomTextBox.Size = new Size(1085, 25);
             uploadCustomTextBox.TabIndex = 48;
             uploadCustomTextBox.Text = "Upload custom ions here - csv with headers \"Mass\" and \"Description\"";
             uploadCustomTextBox.TextChanged += uploadCustomTextBox_TextChanged_1;
             // 
             // UploadCustomBrowseButton
             // 
-            UploadCustomBrowseButton.Location = new Point(1095, 663);
+            UploadCustomBrowseButton.Location = new Point(1106, 663);
             UploadCustomBrowseButton.Margin = new Padding(4, 3, 4, 3);
             UploadCustomBrowseButton.Name = "UploadCustomBrowseButton";
             UploadCustomBrowseButton.Size = new Size(88, 25);
@@ -750,6 +750,74 @@
             GlyCounter_Tab.Text = "Pre-ID";
             GlyCounter_Tab.UseVisualStyleBackColor = true;
             // 
+            // OxoCountThreshold_uvpd_label
+            // 
+            OxoCountThreshold_uvpd_label.AutoSize = true;
+            OxoCountThreshold_uvpd_label.Location = new Point(982, 522);
+            OxoCountThreshold_uvpd_label.Margin = new Padding(2, 0, 2, 0);
+            OxoCountThreshold_uvpd_label.Name = "OxoCountThreshold_uvpd_label";
+            OxoCountThreshold_uvpd_label.Size = new Size(164, 30);
+            OxoCountThreshold_uvpd_label.TabIndex = 64;
+            OxoCountThreshold_uvpd_label.Text = "Oxonium Count Requirement\r\n0 = default";
+            // 
+            // uvpdTICfraction_Label
+            // 
+            uvpdTICfraction_Label.AutoSize = true;
+            uvpdTICfraction_Label.Location = new Point(981, 501);
+            uvpdTICfraction_Label.Margin = new Padding(4, 0, 4, 0);
+            uvpdTICfraction_Label.Name = "uvpdTICfraction_Label";
+            uvpdTICfraction_Label.Size = new Size(101, 15);
+            uvpdTICfraction_Label.TabIndex = 63;
+            uvpdTICfraction_Label.Text = "UVPD TIC fraction";
+            // 
+            // PeakDepth_label_UVPD
+            // 
+            PeakDepth_label_UVPD.AutoSize = true;
+            PeakDepth_label_UVPD.Location = new Point(982, 472);
+            PeakDepth_label_UVPD.Margin = new Padding(2, 0, 2, 0);
+            PeakDepth_label_UVPD.Name = "PeakDepth_label_UVPD";
+            PeakDepth_label_UVPD.Size = new Size(202, 15);
+            PeakDepth_label_UVPD.TabIndex = 62;
+            PeakDepth_label_UVPD.Text = "Must be within N most intense peaks";
+            // 
+            // OxoCountRequireBox_uvpd
+            // 
+            OxoCountRequireBox_uvpd.Location = new Point(918, 527);
+            OxoCountRequireBox_uvpd.Margin = new Padding(4, 3, 4, 3);
+            OxoCountRequireBox_uvpd.Name = "OxoCountRequireBox_uvpd";
+            OxoCountRequireBox_uvpd.Size = new Size(61, 23);
+            OxoCountRequireBox_uvpd.TabIndex = 61;
+            OxoCountRequireBox_uvpd.Text = "0";
+            // 
+            // uvpdTICfraction
+            // 
+            uvpdTICfraction.Location = new Point(918, 498);
+            uvpdTICfraction.Margin = new Padding(4, 3, 4, 3);
+            uvpdTICfraction.Name = "uvpdTICfraction";
+            uvpdTICfraction.Size = new Size(61, 23);
+            uvpdTICfraction.TabIndex = 60;
+            uvpdTICfraction.Text = "0.05";
+            // 
+            // PeakDepth_Box_UVPD
+            // 
+            PeakDepth_Box_UVPD.Location = new Point(918, 469);
+            PeakDepth_Box_UVPD.Margin = new Padding(4, 3, 4, 3);
+            PeakDepth_Box_UVPD.Name = "PeakDepth_Box_UVPD";
+            PeakDepth_Box_UVPD.Size = new Size(61, 23);
+            PeakDepth_Box_UVPD.TabIndex = 59;
+            PeakDepth_Box_UVPD.Text = "25";
+            // 
+            // UVPDsettingslabel
+            // 
+            UVPDsettingslabel.AutoSize = true;
+            UVPDsettingslabel.Font = new Font("Microsoft Sans Serif", 9.75F, FontStyle.Underline, GraphicsUnit.Point, 0);
+            UVPDsettingslabel.Location = new Point(919, 445);
+            UVPDsettingslabel.Margin = new Padding(4, 0, 4, 0);
+            UVPDsettingslabel.Name = "UVPDsettingslabel";
+            UVPDsettingslabel.Size = new Size(177, 16);
+            UVPDsettingslabel.TabIndex = 58;
+            UVPDsettingslabel.Text = "UVPD MS/MS Scan Settings";
+            // 
             // label1
             // 
             label1.AutoSize = true;
@@ -783,7 +851,7 @@
             VersionNumber_Label.Name = "VersionNumber_Label";
             VersionNumber_Label.Size = new Size(63, 15);
             VersionNumber_Label.TabIndex = 54;
-            VersionNumber_Label.Text = "version 0.3";
+            VersionNumber_Label.Text = "version 0.4";
             // 
             // YnaughtTab
             // 
@@ -1313,74 +1381,6 @@
             LoadInGlycoPepIDs_TextBox.TabIndex = 0;
             LoadInGlycoPepIDs_TextBox.Text = "Upload glycopeptide IDs (e.g., PSMs file) here: tab-delimited .txt with headers \"Spectrum Number\", \"Charge State\", \"Peptide Sequence\", and \"Modifications\"";
             LoadInGlycoPepIDs_TextBox.TextChanged += LoadInGlycoPepIDs_TextBox_TextChanged;
-            // 
-            // UVPDsettingslabel
-            // 
-            UVPDsettingslabel.AutoSize = true;
-            UVPDsettingslabel.Font = new Font("Microsoft Sans Serif", 9.75F, FontStyle.Underline, GraphicsUnit.Point, 0);
-            UVPDsettingslabel.Location = new Point(919, 445);
-            UVPDsettingslabel.Margin = new Padding(4, 0, 4, 0);
-            UVPDsettingslabel.Name = "UVPDsettingslabel";
-            UVPDsettingslabel.Size = new Size(177, 16);
-            UVPDsettingslabel.TabIndex = 58;
-            UVPDsettingslabel.Text = "UVPD MS/MS Scan Settings";
-            // 
-            // PeakDepth_Box_UVPD
-            // 
-            PeakDepth_Box_UVPD.Location = new Point(918, 469);
-            PeakDepth_Box_UVPD.Margin = new Padding(4, 3, 4, 3);
-            PeakDepth_Box_UVPD.Name = "PeakDepth_Box_UVPD";
-            PeakDepth_Box_UVPD.Size = new Size(61, 23);
-            PeakDepth_Box_UVPD.TabIndex = 59;
-            PeakDepth_Box_UVPD.Text = "25";
-            // 
-            // uvpdTICfraction
-            // 
-            uvpdTICfraction.Location = new Point(918, 498);
-            uvpdTICfraction.Margin = new Padding(4, 3, 4, 3);
-            uvpdTICfraction.Name = "uvpdTICfraction";
-            uvpdTICfraction.Size = new Size(61, 23);
-            uvpdTICfraction.TabIndex = 60;
-            uvpdTICfraction.Text = "0.20";
-            // 
-            // OxoCountRequireBox_uvpd
-            // 
-            OxoCountRequireBox_uvpd.Location = new Point(918, 527);
-            OxoCountRequireBox_uvpd.Margin = new Padding(4, 3, 4, 3);
-            OxoCountRequireBox_uvpd.Name = "OxoCountRequireBox_uvpd";
-            OxoCountRequireBox_uvpd.Size = new Size(61, 23);
-            OxoCountRequireBox_uvpd.TabIndex = 61;
-            OxoCountRequireBox_uvpd.Text = "0";
-            // 
-            // PeakDepth_label_UVPD
-            // 
-            PeakDepth_label_UVPD.AutoSize = true;
-            PeakDepth_label_UVPD.Location = new Point(982, 472);
-            PeakDepth_label_UVPD.Margin = new Padding(2, 0, 2, 0);
-            PeakDepth_label_UVPD.Name = "PeakDepth_label_UVPD";
-            PeakDepth_label_UVPD.Size = new Size(202, 15);
-            PeakDepth_label_UVPD.TabIndex = 62;
-            PeakDepth_label_UVPD.Text = "Must be within N most intense peaks";
-            // 
-            // uvpdTICfraction_Label
-            // 
-            uvpdTICfraction_Label.AutoSize = true;
-            uvpdTICfraction_Label.Location = new Point(981, 501);
-            uvpdTICfraction_Label.Margin = new Padding(4, 0, 4, 0);
-            uvpdTICfraction_Label.Name = "uvpdTICfraction_Label";
-            uvpdTICfraction_Label.Size = new Size(101, 15);
-            uvpdTICfraction_Label.TabIndex = 63;
-            uvpdTICfraction_Label.Text = "UVPD TIC fraction";
-            // 
-            // OxoCountThreshold_uvpd_label
-            // 
-            OxoCountThreshold_uvpd_label.AutoSize = true;
-            OxoCountThreshold_uvpd_label.Location = new Point(982, 522);
-            OxoCountThreshold_uvpd_label.Margin = new Padding(2, 0, 2, 0);
-            OxoCountThreshold_uvpd_label.Name = "OxoCountThreshold_uvpd_label";
-            OxoCountThreshold_uvpd_label.Size = new Size(164, 30);
-            OxoCountThreshold_uvpd_label.TabIndex = 64;
-            OxoCountThreshold_uvpd_label.Text = "Oxonium Count Requirement\r\n0 = default";
             // 
             // Form1
             // 

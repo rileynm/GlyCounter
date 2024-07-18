@@ -548,7 +548,7 @@ namespace GlyCounter
                                 {
                                     halfTotalList = 4;
                                 }
-                                if (oxoniumIonHashSet.Count < 6)
+                                if (oxoniumIonHashSet.Count > 15)
                                 {
                                     halfTotalList = 8;
                                 }
@@ -1413,7 +1413,7 @@ namespace GlyCounter
                                 if (oxoniumIonHashSet.Count < 6) 
                                     halfTotalList = 4;
                                 
-                                if (oxoniumIonHashSet.Count >15) 
+                                if (oxoniumIonHashSet.Count > 15) 
                                     halfTotalList = 8;
 
                                 //if not using 204, the below test will fail by default, so we need to add this in to make sure we check the calculation even if 204 isn't being used.
@@ -1848,7 +1848,7 @@ namespace GlyCounter
                                         //considered also using the number of oxonium ions found has to be at least half to the total list looked for, but decided against it for now (what if big list?)
                                         if (oxoniumIonHashSet.Count < 6)
                                             halfTotalList = 4;
-                                        if (oxoniumIonHashSet.Count < 15)
+                                        if (oxoniumIonHashSet.Count > 15)
                                             halfTotalList = 8;
                                         
                                         //if not using 204, the below test will fail by default, so we need to add this in to make sure we check the calculation even if 204 isn't being used.

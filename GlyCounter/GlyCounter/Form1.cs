@@ -783,6 +783,10 @@ namespace GlyCounter
                                     numberOfHCDscans++;
                                     hcdTrue = true;
                                     break;
+                                case ", supplemental beam-type collision-induced dissociation":
+                                    numberOfETDscans++;
+                                    etdTrue = true;
+                                    break;
                                 case "electron transfer dissociation":
                                     numberOfETDscans++;
                                     etdTrue = true;
@@ -916,8 +920,16 @@ namespace GlyCounter
                                 }
                                 double scanTIC = spec.TotalIonCurrent;
 
-                                string[] ITlist = paramsList[13].ToString().Split('"');
+                                string[] ITlist = [];
+                                foreach (var param in paramsList)
+                                {
+                                    if (param.ToString().Contains("ion injection time"))
+                                    {
+                                        ITlist = param.ToString().Split('"');
+                                    }
+                                }
                                 double scanInjTime = double.Parse(ITlist[1], System.Globalization.NumberStyles.Float);
+
                                 string fragmentationType = "";
                                 if (hcdTrue)
                                     fragmentationType = "HCD";
@@ -1655,6 +1667,10 @@ namespace GlyCounter
                                         numberOfHCDscans++;
                                         hcdTrue = true;
                                         break;
+                                    case ", supplemental beam-type collision-induced dissociation":
+                                        numberOfETDscans++;
+                                        etdTrue = true;
+                                        break;
                                     case "electron transfer dissociation":
                                         numberOfETDscans++;
                                         etdTrue = true;
@@ -1793,8 +1809,17 @@ namespace GlyCounter
                                     try
                                     {
                                         double scanTIC = spec.TotalIonCurrent;
-                                        string[] ITlist = paramsList[13].ToString().Split('"');
+
+                                        string[] ITlist = [];
+                                        foreach (var param in paramsList)
+                                        {
+                                            if (param.ToString().Contains("ion injection time"))
+                                            {
+                                                ITlist = param.ToString().Split('"');
+                                            }
+                                        }
                                         double scanInjTime = double.Parse(ITlist[1], System.Globalization.NumberStyles.Float);
+
                                         string fragmentationType = "";
                                         
                                         if (hcdTrue)

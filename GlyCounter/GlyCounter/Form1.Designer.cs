@@ -82,6 +82,7 @@
             GlyCounterLogo = new PictureBox();
             GlyCounter_AllTabs = new TabControl();
             GlyCounter_Tab = new TabPage();
+            DaltonCheckBox = new CheckBox();
             OxoCountThreshold_uvpd_label = new Label();
             uvpdTICfraction_Label = new Label();
             PeakDepth_label_UVPD = new Label();
@@ -94,6 +95,7 @@
             intensityThresholdTextBox = new TextBox();
             VersionNumber_Label = new Label();
             YnaughtTab = new TabPage();
+            Ynaught_DaCheckBox = new CheckBox();
             BrowseGlycans_Button = new Button();
             LoadInGlycanMasses_TextBox = new TextBox();
             Ynaught_GlyCounterLogo = new PictureBox();
@@ -144,8 +146,7 @@
             BrowseGlycoPepIDs = new Button();
             LoadInGlycoPepIDs_TextBox = new TextBox();
             timer2 = new System.Windows.Forms.Timer(components);
-            DaltonCheckBox = new CheckBox();
-            Ynaught_DaCheckBox = new CheckBox();
+            ipsaCheckBox = new CheckBox();
             ((System.ComponentModel.ISupportInitialize)GlyCounterLogo).BeginInit();
             GlyCounter_AllTabs.SuspendLayout();
             GlyCounter_Tab.SuspendLayout();
@@ -684,6 +685,7 @@
             // 
             // GlyCounter_Tab
             // 
+            GlyCounter_Tab.Controls.Add(ipsaCheckBox);
             GlyCounter_Tab.Controls.Add(DaltonCheckBox);
             GlyCounter_Tab.Controls.Add(OxoCountThreshold_uvpd_label);
             GlyCounter_Tab.Controls.Add(uvpdTICfraction_Label);
@@ -752,6 +754,17 @@
             GlyCounter_Tab.TabIndex = 0;
             GlyCounter_Tab.Text = "Pre-ID";
             GlyCounter_Tab.UseVisualStyleBackColor = true;
+            // 
+            // DaltonCheckBox
+            // 
+            DaltonCheckBox.AutoSize = true;
+            DaltonCheckBox.Location = new Point(1132, 112);
+            DaltonCheckBox.Name = "DaltonCheckBox";
+            DaltonCheckBox.Size = new Size(40, 19);
+            DaltonCheckBox.TabIndex = 67;
+            DaltonCheckBox.Text = "Da";
+            DaltonCheckBox.UseVisualStyleBackColor = true;
+            DaltonCheckBox.CheckedChanged += DaltonCheckBox_CheckedChanged;
             // 
             // OxoCountThreshold_uvpd_label
             // 
@@ -915,6 +928,17 @@
             YnaughtTab.TabIndex = 1;
             YnaughtTab.Text = "Ynaught";
             YnaughtTab.UseVisualStyleBackColor = true;
+            // 
+            // Ynaught_DaCheckBox
+            // 
+            Ynaught_DaCheckBox.AutoSize = true;
+            Ynaught_DaCheckBox.Location = new Point(1131, 320);
+            Ynaught_DaCheckBox.Name = "Ynaught_DaCheckBox";
+            Ynaught_DaCheckBox.Size = new Size(40, 19);
+            Ynaught_DaCheckBox.TabIndex = 68;
+            Ynaught_DaCheckBox.Text = "Da";
+            Ynaught_DaCheckBox.UseVisualStyleBackColor = true;
+            Ynaught_DaCheckBox.CheckedChanged += Ynaught_DaCheckBox_CheckedChanged;
             // 
             // BrowseGlycans_Button
             // 
@@ -1386,27 +1410,16 @@
             LoadInGlycoPepIDs_TextBox.Text = "Upload glycopeptide IDs (e.g., PSMs file) here: tab-delimited .txt with headers \"Spectrum Number\", \"Charge State\", \"Peptide Sequence\", and \"Modifications\"";
             LoadInGlycoPepIDs_TextBox.TextChanged += LoadInGlycoPepIDs_TextBox_TextChanged;
             // 
-            // DaltonCheckBox
+            // ipsaCheckBox
             // 
-            DaltonCheckBox.AutoSize = true;
-            DaltonCheckBox.Location = new Point(1132, 112);
-            DaltonCheckBox.Name = "DaltonCheckBox";
-            DaltonCheckBox.Size = new Size(40, 19);
-            DaltonCheckBox.TabIndex = 67;
-            DaltonCheckBox.Text = "Da";
-            DaltonCheckBox.UseVisualStyleBackColor = true;
-            DaltonCheckBox.CheckedChanged += DaltonCheckBox_CheckedChanged;
-            // 
-            // Ynaught_DaCheckBox
-            // 
-            Ynaught_DaCheckBox.AutoSize = true;
-            Ynaught_DaCheckBox.Location = new Point(1131, 320);
-            Ynaught_DaCheckBox.Name = "Ynaught_DaCheckBox";
-            Ynaught_DaCheckBox.Size = new Size(40, 19);
-            Ynaught_DaCheckBox.TabIndex = 68;
-            Ynaught_DaCheckBox.Text = "Da";
-            Ynaught_DaCheckBox.UseVisualStyleBackColor = true;
-            Ynaught_DaCheckBox.CheckedChanged += Ynaught_DaCheckBox_CheckedChanged;
+            ipsaCheckBox.AutoSize = true;
+            ipsaCheckBox.Location = new Point(1038, 638);
+            ipsaCheckBox.Name = "ipsaCheckBox";
+            ipsaCheckBox.Size = new Size(159, 19);
+            ipsaCheckBox.TabIndex = 68;
+            ipsaCheckBox.Text = "Output IPSA Annotations";
+            ipsaCheckBox.UseVisualStyleBackColor = true;
+            ipsaCheckBox.CheckedChanged += checkBox1_CheckedChanged;
             // 
             // Form1
             // 
@@ -1546,5 +1559,6 @@
         private Label PeakDepth_label_UVPD;
         private CheckBox DaltonCheckBox;
         private CheckBox Ynaught_DaCheckBox;
+        private CheckBox ipsaCheckBox;
     }
 }

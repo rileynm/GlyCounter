@@ -41,3 +41,7 @@ Additional csv files can be uploaded with custom Y-ions or neutral losses (Heade
 
 **Charge State Options**: Larger glycopeptide fragments have the potential to be at any charge state between +1 and the precursor charge state. The charge state limits are determined based on z-X and z-Y where z is the precursor charge, z-X is the highest considered charge state, and z-Y is the lowest considered charge state.
 For example: if the precursor charge is 4 and I want to consider anything with a charge +2 to +4, I would enter 0 for X and 2 for Y. If I only wanted to consider the precursor charge then X and Y should be 0.
+
+## Example Files
+**Glycounter_Custom_Ion_Upload.csv**: Oxonium ions taken from the supplementary table of *Experimentally Determined Diagnostic Ions for Identification of Peptide Glycotopes* published by DeBono, Moh, and Packer in JPR (2024).
+

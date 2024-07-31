@@ -1,4 +1,4 @@
-# Glycounter
+# GlyCounter
 ## Pre-ID
 Accepts one or more .raw or .mzML file(s) and extracts information about the oxonium ions in your spectra. A csv file with additional ions to be considered (with headers "Mass" and "Description") can be uploaded as well.
 Scan settings are customizable per dissociation method (for example: usually ETD will have less intense/fewer oxonium ions than other dissociation methods so the defaults are lower).
@@ -23,6 +23,8 @@ Scan settings are customizable per dissociation method (for example: usually ETD
 
 These defaults are halved for ETD spectra. The Check Common Ions button checks 17 ions, so if used with the default setting the count requirement would be 8 for HCD/UVPD and 4 for ETD.
 
+**Ouput IPSA Annotations**: Check if you want to output annotations compatable with IPSA 2.0. This creates a text file with the found oxonium ions per scan and their mass errors.
+
 ### LikelyGlycoSpectrum
 A spectrum is considered likely to be a glycopeptide if it meets the requirements set by the user before the run. This is based on the Oxonium Count Requirement (minimum amount of oxonium ions needed to be observed in the N most intense peaks set by the Peak Depth option) and the chosen TIC fraction (minimum percentage of TIC that needs to be oxonium ions).
 If the HexNAc (204.0867 m/z) oxonium ion is selected, it must show up in the set peak depth for a spectrum to be considered LikelyGlyco.
@@ -41,3 +43,7 @@ Additional csv files can be uploaded with custom Y-ions or neutral losses (Heade
 
 **Charge State Options**: Larger glycopeptide fragments have the potential to be at any charge state between +1 and the precursor charge state. The charge state limits are determined based on z-X and z-Y where z is the precursor charge, z-X is the highest considered charge state, and z-Y is the lowest considered charge state.
 For example: if the precursor charge is 4 and I want to consider anything with a charge +2 to +4, I would enter 0 for X and 2 for Y. If I only wanted to consider the precursor charge then X and Y should be 0.
+
+## Example Files
+**Glycounter_Custom_Ion_Upload.csv**: Oxonium ions taken from the supplementary table of *Experimentally Determined Diagnostic Ions for Identification of Peptide Glycotopes* published by DeBono, Moh, and Packer in JPR (2024).
+

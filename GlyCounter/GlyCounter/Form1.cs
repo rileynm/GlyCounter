@@ -13,10 +13,11 @@ namespace GlyCounter
 {
     public partial class Form1 : Form
     {
-        //here we build variables 
+        //here we build variables
         HashSet<OxoniumIon> oxoniumIonHashSet = new HashSet<OxoniumIon>();
         string filePath = "";
         string csvCustomFile = "empty";
+        double daTolerance = 1;
         double ppmTolerance = 15;
         double SNthreshold = 3;
         double peakDepthThreshold_hcd = 25;
@@ -29,15 +30,19 @@ namespace GlyCounter
         double oxoCountRequirement_hcd_user = 0;
         double oxoCountRequirement_etd_user = 0;
         double oxoCountRequirement_uvpd_user = 0;
-        bool using204 = false;
         double intensityThreshold = 1000;
+        double tol = new double();
+        bool using204 = false;
+        bool ipsa = false;
 
         //Ynaught variables
         HashSet<Yion> yIonHashSet = new HashSet<Yion>();
         string Ynaught_pepIDFilePath = "";
         string Ynaught_glycanMassesFilePath = "";
         string Ynaught_rawFilePath = "";
+        double Ynaught_daTolerance = 1;
         double Ynaught_ppmTolerance = 15;
+        double Ynaught_tol = new double();
         double Ynaught_SNthreshold = 3;
         int Ynaught_chargeStateMod_X = 0;
         int Ynaught_chargeStateMod_Y = 1;
@@ -83,6 +88,8 @@ namespace GlyCounter
 
         private void StartButton_Click(object sender, EventArgs e)
         {
+            bool usingda = false;
+
 
             timer1.Interval = 1000;
             timer1.Tick += new EventHandler(OnTimerTick);
@@ -91,8 +98,28 @@ namespace GlyCounter
             StartTimeLabel.Text = "Start Time: " + DateTime.Now.ToString("HH:mm:ss");
 
             //make sure all user inputs are in the correct format, otherwise use defaults
-            if (CanConvertDouble(ppmTol_textBox.Text, ppmTolerance))
-                ppmTolerance = Convert.ToDouble(ppmTol_textBox.Text);
+            if (DaltonCheckBox.Checked)
+            {
+                if (CanConvertDouble(ppmTol_textBox.Text, daTolerance))
+                {
+                    daTolerance = Convert.ToDouble(ppmTol_textBox.Text);
+                    usingda = true;
+                }
+
+            }
+            else
+            {
+                if (CanConvertDouble(ppmTol_textBox.Text, ppmTolerance))
+                    ppmTolerance = Convert.ToDouble(ppmTol_textBox.Text);
+            }
+
+            if (usingda)
+                tol = daTolerance;
+            else
+            {
+                tol = ppmTolerance;
+            }
+
 
             if (CanConvertDouble(SN_textBox.Text, SNthreshold))
                 SNthreshold = Convert.ToDouble(SN_textBox.Text);
@@ -111,7 +138,7 @@ namespace GlyCounter
 
             if (CanConvertDouble(etdTICfraction.Text, oxoTICfractionThreshold_etd))
                 oxoTICfractionThreshold_etd = Convert.ToDouble(etdTICfraction.Text);
-            
+
             if (CanConvertDouble(uvpdTICfraction.Text, oxoTICfractionThreshold_uvpd))
                 oxoTICfractionThreshold_uvpd = Convert.ToDouble(uvpdTICfraction.Text);
 
@@ -120,16 +147,21 @@ namespace GlyCounter
 
             if (CanConvertDouble(OxoCountRequireBox_etd.Text, oxoCountRequirement_etd_user))
                 oxoCountRequirement_etd_user = Convert.ToDouble(OxoCountRequireBox_etd.Text);
-            
+
             if (CanConvertDouble(OxoCountRequireBox_uvpd.Text, oxoCountRequirement_uvpd_user))
                 oxoCountRequirement_uvpd_user = Convert.ToDouble(OxoCountRequireBox_uvpd.Text);
 
-            if(CanConvertDouble(intensityThresholdTextBox.Text, intensityThreshold))
+            if (CanConvertDouble(intensityThresholdTextBox.Text, intensityThreshold))
                 intensityThreshold = Convert.ToDouble(intensityThresholdTextBox.Text);
 
+            string toleranceString = "ppmTol: ";
+            if (usingda)
+            {
+                toleranceString = "DaTol: ";
+            }
 
-            MessageBox.Show("You are using these settings:\r\nppmTol: " + ppmTolerance + "\r\nSNthreshold: " + SNthreshold + "\r\nIntensityTheshold: " + intensityThreshold 
-                + "\r\nPeakDepthThreshold_HCD: " + peakDepthThreshold_hcd + "\r\nPeakDepthThreshold_ETD: " + peakDepthThreshold_etd + "\r\nPeakDepthThreshold_UVPD: " + peakDepthThreshold_uvpd 
+            MessageBox.Show("You are using these settings:\r\n" + toleranceString + tol + "\r\nSNthreshold: " + SNthreshold + "\r\nIntensityTheshold: " + intensityThreshold
+                + "\r\nPeakDepthThreshold_HCD: " + peakDepthThreshold_hcd + "\r\nPeakDepthThreshold_ETD: " + peakDepthThreshold_etd + "\r\nPeakDepthThreshold_UVPD: " + peakDepthThreshold_uvpd
                 + "\r\nTICfraction_HCD: " + oxoTICfractionThreshold_hcd + "\r\nTICfraction_ETD: " + oxoTICfractionThreshold_etd + "\r\nTICfraction_UVPD: " + oxoTICfractionThreshold_uvpd);
 
 
@@ -230,9 +262,29 @@ namespace GlyCounter
                     oxoIon.etdCount = 0;
                     oxoIon.uvpdCount = 0;
                     oxoIon.peakDepth = arbitraryPeakDepthIfNotFound;
+
+                    //If an oxonium ion with the same theoretical m/z value exists, replace it with the one from the custom csv
+                    List<OxoniumIon> ionsToRemove = new List<OxoniumIon>();
+                    foreach (OxoniumIon ion in oxoniumIonHashSet)
+                    {
+                        if (ion.Equals(oxoIon))
+                            ionsToRemove.Add(ion);
+                    }
+                    foreach (OxoniumIon ion in ionsToRemove)
+                    {
+                        Console.WriteLine(ion.ToString());
+                        oxoniumIonHashSet.Remove(ion);
+                    }
+
                     oxoniumIonHashSet.Add(oxoIon);
+
+                    if (oxoIon.theoMZ == 204.0867 || oxoIon.description == "HexNAc")
+                        using204 = true;
                 }
             }
+
+            if (ipsaCheckBox.Checked)
+                ipsa = true;
 
             if (AllRawFilesCheckBox.Checked)
             {
@@ -306,15 +358,23 @@ namespace GlyCounter
 
                     StreamWriter outputOxo = new StreamWriter(fileName + "_GlyCounter_OxoSignal.txt");
                     StreamWriter outputPeakDepth = new StreamWriter(fileName + "_GlyCounter_OxoPeakDepth.txt");
+                    StreamWriter outputIPSA = null;
+                    if (ipsaCheckBox.Checked)
+                    {
+                        outputIPSA = new StreamWriter(fileName + "_Glycounter_IPSA.txt");
+                    }
                     StreamWriter outputSummary = new StreamWriter(fileName + "_GlyCounter_Summary.txt");
 
                     outputOxo.Write("ScanNumber\tRetentionTime\tScanTIC\tTotalOxoSignal\tScanInjTime\tDissociationType\tParentScan\tNumOxonium\tTotalOxoSignal\t");
                     outputPeakDepth.Write("ScanNumber\tRetentionTime\tScanTIC\tTotalOxoSignal\tScanInjTime\tDissociationType\tParentScan\tNumOxonium\tTotalOxoSignal\t");
+                    if (outputIPSA != null)
+                        outputIPSA.WriteLine("ScanNumber\tOxoniumIons\tMassError\t");
+
                     /*
                     outputSummary.WriteLine("Settings\tppmTol:\t" + ppmTolerance + "\tSNthreshold:\t" + SNthreshold + "\tHCDPeakDepthThreshold:\t" + peakDepthThreshold_hcd
                         + "\tETDPeakDepthThreshold:\t" + peakDepthThreshold_etd + "\tHCD TIC fraction:\t" + oxoTICfractionThreshold_hcd + "\tETD TIC fraction:\t" + oxoTICfractionThreshold_etd);
                     */
-                    outputSummary.WriteLine("Settings:\tppmTol=" + ppmTolerance + ", SNthreshold=" + SNthreshold + ", IntensityThreshold=" + intensityThreshold + ", PeakDepthThreshold_HCD=" + peakDepthThreshold_hcd + ", PeakDepthThreshold_ETD=" + peakDepthThreshold_etd + ", PeakDepthThreshold_UVPD=" + peakDepthThreshold_uvpd 
+                    outputSummary.WriteLine("Settings:\t" + toleranceString + ", SNthreshold=" + SNthreshold + ", IntensityThreshold=" + intensityThreshold + ", PeakDepthThreshold_HCD=" + peakDepthThreshold_hcd + ", PeakDepthThreshold_ETD=" + peakDepthThreshold_etd + ", PeakDepthThreshold_UVPD=" + peakDepthThreshold_uvpd
                         + ", TICfraction_HCD=" + oxoTICfractionThreshold_hcd + ", TICfraction_ETD=" + oxoTICfractionThreshold_etd + ", TICfraction_UVPD=" + oxoTICfractionThreshold_uvpd);
                     outputSummary.WriteLine(VersionNumber_Label.Text + ", " + StartTimeLabel.Text);
                     outputSummary.WriteLine();
@@ -335,6 +395,9 @@ namespace GlyCounter
                             bool hcdTrue = false;
                             bool etdTrue = false;
                             bool uvpdTrue = false;
+
+                            List<double> oxoniumIonFoundPeaks = new List<double>();
+                            List<double> oxoniumIonFoundMassErrors = new List<double>();
 
                             if (rawFile.GetDissociationType(i).ToString().Equals("HCD"))
                             {
@@ -363,7 +426,7 @@ namespace GlyCounter
 
                                 RankOrderPeaks(sortedPeakDepths, spectrum);
 
-                                List<ThermoMzPeak> oxoniumIonFoundPeaks = new List<ThermoMzPeak>();
+                                
 
                                 foreach (OxoniumIon oxoIon in oxoniumIonHashSet)
                                 {
@@ -375,7 +438,8 @@ namespace GlyCounter
                                     oxoIon.intensity = 0;
 
                                     //Trace.WriteLine("Scan: " + i);
-                                    ThermoMzPeak peak = GetPeak(spectrum, oxoIon.theoMZ, ppmTolerance, IT);
+
+                                    ThermoMzPeak peak = GetPeak(spectrum, oxoIon.theoMZ, usingda, tol, IT);
 
                                     if (!IT)
                                     {
@@ -399,9 +463,13 @@ namespace GlyCounter
 
                                             if (oxoIon.theoMZ == 204.0867 && sortedPeakDepths[peak.Intensity] <= peakDepthThreshold_etd && etdTrue)
                                                 test204 = true;
-                                            
+
                                             if (oxoIon.theoMZ == 204.0867 && sortedPeakDepths[peak.Intensity] <= peakDepthThreshold_uvpd && uvpdTrue)
                                                 test204 = true;
+
+                                            oxoniumIonFoundPeaks.Add(oxoIon.theoMZ);
+                                            var massError = oxoIon.measuredMZ - oxoIon.theoMZ;
+                                            oxoniumIonFoundMassErrors.Add(massError);
                                         }
                                     }
                                     else
@@ -426,9 +494,13 @@ namespace GlyCounter
 
                                             if (oxoIon.theoMZ == 204.0867 && sortedPeakDepths[peak.Intensity] <= peakDepthThreshold_etd && etdTrue)
                                                 test204 = true;
-                                            
+
                                             if (oxoIon.theoMZ == 204.0867 && sortedPeakDepths[peak.Intensity] <= peakDepthThreshold_uvpd && uvpdTrue)
                                                 test204 = true;
+
+                                            oxoniumIonFoundPeaks.Add(oxoIon.theoMZ);
+                                            var massError = oxoIon.measuredMZ - oxoIon.theoMZ;
+                                            oxoniumIonFoundMassErrors.Add(massError);
                                         }
                                     }
                                 }
@@ -500,10 +572,8 @@ namespace GlyCounter
                                 {
                                     parentScan = rawFile.GetParentSpectrumNumber(i);
                                 }
-                                catch (Exception ex)
-                                {
-                                    Debug.WriteLine(ex.Message);
-                                }
+                                catch (Exception ex) { }
+
                                 double scanTIC = rawFile.GetTIC(i);
                                 double scanInjTime = rawFile.GetInjectionTime(i);
                                 string fragmentationType = rawFile.GetDissociationType(i).ToString();
@@ -512,8 +582,23 @@ namespace GlyCounter
 
                                 List<double> oxoRanks = new List<double>();
 
+                                string peakString = new string("");
+                                foreach (double theoMZ in oxoniumIonFoundPeaks)
+                                {
+                                    peakString = peakString + theoMZ.ToString() + "; ";
+                                }
+
+                                string errorString = new string("");
+                                foreach (double error in oxoniumIonFoundMassErrors)
+                                {
+                                    errorString = errorString + error.ToString("F6") + "; ";
+                                }
+
                                 outputOxo.Write(i + "\t" + retentionTime + "\t" + scanTIC + "\t" + totalOxoSignal + "\t" + scanInjTime + "\t" + fragmentationType + "\t" + parentScan + "\t" + numberOfOxoIons + "\t" + totalOxoSignal + "\t");
                                 outputPeakDepth.Write(i + "\t" + retentionTime + "\t" + scanTIC + "\t" + totalOxoSignal + "\t" + scanInjTime + "\t" + fragmentationType + "\t" + parentScan + "\t" + numberOfOxoIons + "\t" + totalOxoSignal + "\t");
+                                if (outputIPSA != null)
+                                    outputIPSA.WriteLine(i + "\t" + peakString + "\t" + errorString + "\t");
+                                
 
                                 foreach (OxoniumIon oxoIon in oxoniumIonHashSet)
                                 {
@@ -532,7 +617,7 @@ namespace GlyCounter
 
                                         if (etdTrue && oxoIon.peakDepth <= peakDepthThreshold_etd)
                                             countOxoWithinPeakDepthThreshold++;
-                                        
+
                                         if (uvpdTrue && oxoIon.peakDepth <= peakDepthThreshold_uvpd)
                                             countOxoWithinPeakDepthThreshold++;
 
@@ -558,7 +643,7 @@ namespace GlyCounter
                                     test204 = true;
 
                                 double oxoTICfraction = totalOxoSignal / scanTIC;
-                                
+
                                 //Check if there is a user input oxonium count requirement. If not, use default values
                                 double oxoCountRequirement = 0;
                                 if (hcdTrue)
@@ -634,13 +719,13 @@ namespace GlyCounter
                     double percentage4ox_uvpd = (double)numberOfMS2scansWithOxo_4_uvpd / (double)numberOfUVPDscans * 100;
                     double percentage5plusox_uvpd = (double)numberOfMS2scansWithOxo_5plus_uvpd / (double)numberOfUVPDscans * 100;
                     double percentageSum_uvpd = percentage1ox_uvpd + percentage2ox_uvpd + percentage3ox_uvpd + percentage4ox_uvpd + percentage5plusox_uvpd;
-                    
+
                     numberScansCountedLikelyGlyco_total = numberScansCountedLikelyGlyco_hcd + numberScansCountedLikelyGlyco_etd + numberScansCountedLikelyGlyco_uvpd;
                     double percentageLikelyGlyco_total = (double)numberScansCountedLikelyGlyco_total / (double)numberOfMS2scans * 100;
                     double percentageLikelyGlyco_hcd = (double)numberScansCountedLikelyGlyco_hcd / (double)numberOfHCDscans * 100;
                     double percentageLikelyGlyco_etd = (double)numberScansCountedLikelyGlyco_etd / (double)numberOfETDscans * 100;
                     double percentageLikelyGlyco_uvpd = (double)numberScansCountedLikelyGlyco_uvpd / (double)numberOfUVPDscans * 100;
-                    
+
                     outputSummary.WriteLine("\tTotal\tHCD\tETD\tUVPD\t%Total\t%HCD\t%ETD\t%UVPD");
                     outputSummary.WriteLine("MS/MS Scans with OxoIons\t" + numberOfMS2scans + "\t" + numberOfHCDscans + "\t" + numberOfETDscans + "\t" + numberOfUVPDscans
                         + "\t" + percentageSum + "\t" + percentageSum_hcd + "\t" + percentageSum_etd + "\t" + percentageSum_uvpd);
@@ -669,7 +754,7 @@ namespace GlyCounter
                         double percentHCD = (double)oxoIon.hcdCount / (double)numberOfHCDscans * 100;
                         double percentETD = (double)oxoIon.etdCount / (double)numberOfETDscans * 100;
                         double percentUVPD = (double)oxoIon.uvpdCount / (double)numberOfUVPDscans * 100;
-                        
+
                         if (!currentGlycanSource.Equals(oxoIon.glycanSource))
                         {
                             outputSummary.WriteLine(@"\\\\\\\\\\\\\\\\\\\\\\ " + oxoIon.glycanSource + @" \\\\\\\\\\\\\\\\\\\\\" + "\t" + @"\\\\\\\\\\" + "\t" + @"\\\\\\\\\\" + "\t" + @"\\\\\\\\\\" + "\t" + @"\\\\\\\\\\" + "\t" + @"\\\\\\\\\\" + "\t" + @"\\\\\\\\\\" + "\t" + @"\\\\\\\\\\" + "\t" + @"\\\\\\\\\\");
@@ -683,9 +768,11 @@ namespace GlyCounter
                     outputSummary.Close();
                     outputOxo.Close();
                     outputPeakDepth.Close();
+                    if (outputIPSA != null)
+                        outputIPSA.Close();
                     rawFile.Dispose();
                 }
-                
+
                 //handles bulk mzML files
                 foreach (var fileName in allMZMLFilesArray)
                 {
@@ -733,10 +820,32 @@ namespace GlyCounter
 
                     StreamWriter outputOxo = new StreamWriter(fileName + "_GlyCounter_OxoSignal.txt");
                     StreamWriter outputPeakDepth = new StreamWriter(fileName + "_GlyCounter_OxoPeakDepth.txt");
+                    StreamWriter outputIPSA = null;
+                    if (ipsaCheckBox.Checked)
+                    {
+                        outputIPSA = new StreamWriter(filePath + "_Glycounter_IPSA.txt");
+                    }
                     StreamWriter outputSummary = new StreamWriter(fileName + "_GlyCounter_Summary.txt");
+
+                    outputOxo.Write("ScanNumber\tRetentionTime\tScanTIC\tTotalOxoSignal\tScanInjTime\tDissociationType\tParentScan\tNumOxonium\tTotalOxoSignal\t");
+                    outputPeakDepth.Write("ScanNumber\tRetentionTime\tScanTIC\tTotalOxoSignal\tScanInjTime\tDissociationType\tParentScan\tNumOxonium\tTotalOxoSignal\t");
+                    if (outputIPSA != null)
+                        outputIPSA.WriteLine("ScanNumber\tOxoniumIons\tMassError\t");
+                    /*
+                    outputSummary.WriteLine("Settings\tppmTol:\t" + ppmTolerance + "\tSNthreshold:\t" + SNthreshold + "\tHCDPeakDepthThreshold:\t" + peakDepthThreshold_hcd
+                        + "\tETDPeakDepthThreshold:\t" + peakDepthThreshold_etd + "\tHCD TIC fraction:\t" + oxoTICfractionThreshold_hcd + "\tETD TIC fraction:\t" + oxoTICfractionThreshold_etd);
+                    */
+                    outputSummary.WriteLine("Settings:\t" + toleranceString + tol + ", SNthreshold=" + SNthreshold + ", IntensityThreshold=" + intensityThreshold + ", PeakDepthThreshold_HCD=" + peakDepthThreshold_hcd
+                        + ", PeakDepthThreshold_ETD=" + peakDepthThreshold_etd + ", PeakDepthThreshold_UVPD=" + peakDepthThreshold_uvpd + ", TICfraction_HCD=" + oxoTICfractionThreshold_hcd
+                        + ", TICfraction_ETD=" + oxoTICfractionThreshold_etd + ", TICfraction_UVPD=" + oxoTICfractionThreshold_uvpd);
+                    outputSummary.WriteLine(VersionNumber_Label.Text + ", " + StartTimeLabel.Text);
+                    outputSummary.WriteLine();
+
 
                     using var reader = new SimpleMzMLReader(fileName, true, true);
                     var specCount = 0;
+                    double halfTotalList = (double)oxoniumIonHashSet.Count / 2.0;
+
                     foreach (var spec in reader.ReadAllSpectra(true))
                     {
 
@@ -746,20 +855,7 @@ namespace GlyCounter
                         StatusLabel.Refresh();
                         FinishTimeLabel.Refresh();
 
-                        double halfTotalList = (double)oxoniumIonHashSet.Count / 2.0;
                         var paramsList = spec.CVParams;
-
-                        outputOxo.Write("ScanNumber\tRetentionTime\tScanTIC\tTotalOxoSignal\tScanInjTime\tDissociationType\tParentScan\tNumOxonium\tTotalOxoSignal\t");
-                        outputPeakDepth.Write("ScanNumber\tRetentionTime\tScanTIC\tTotalOxoSignal\tScanInjTime\tDissociationType\tParentScan\tNumOxonium\tTotalOxoSignal\t");
-                        /*
-                        outputSummary.WriteLine("Settings\tppmTol:\t" + ppmTolerance + "\tSNthreshold:\t" + SNthreshold + "\tHCDPeakDepthThreshold:\t" + peakDepthThreshold_hcd
-                            + "\tETDPeakDepthThreshold:\t" + peakDepthThreshold_etd + "\tHCD TIC fraction:\t" + oxoTICfractionThreshold_hcd + "\tETD TIC fraction:\t" + oxoTICfractionThreshold_etd);
-                        */
-                        outputSummary.WriteLine("Settings:\tppmTol=" + ppmTolerance + ", SNthreshold=" + SNthreshold + ", IntensityThreshold=" + intensityThreshold + ", PeakDepthThreshold_HCD=" + peakDepthThreshold_hcd
-                            + ", PeakDepthThreshold_ETD=" + peakDepthThreshold_etd + ", PeakDepthThreshold_UVPD=" + peakDepthThreshold_uvpd + ", TICfraction_HCD=" + oxoTICfractionThreshold_hcd 
-                            + ", TICfraction_ETD=" + oxoTICfractionThreshold_etd + ", TICfraction_UVPD=" + oxoTICfractionThreshold_uvpd);
-                        outputSummary.WriteLine(VersionNumber_Label.Text + ", " + StartTimeLabel.Text);
-                        outputSummary.WriteLine();
 
                         if (spec.MsLevel == 2)
                         {
@@ -777,9 +873,16 @@ namespace GlyCounter
                             var precursors = spec.Precursors;
                             var precursor = precursors[0];
 
+                            List<double> oxoniumIonFoundPeaks = new List<double>();
+                            List<double> oxoniumIonFoundMassErrors = new List<double>();
+
                             switch (precursor.ActivationMethod.ToString())
                             {
                                 case "beam-type collision-induced dissociation":
+                                    numberOfHCDscans++;
+                                    hcdTrue = true;
+                                    break;
+                                case "collision-induced dissociation":
                                     numberOfHCDscans++;
                                     hcdTrue = true;
                                     break;
@@ -791,9 +894,16 @@ namespace GlyCounter
                                     numberOfETDscans++;
                                     etdTrue = true;
                                     break;
+                                case "electron capture dissociation":
+                                    numberOfETDscans++;
+                                    etdTrue = true;
+                                    break;
                                 case "photodissociation":
                                     numberOfUVPDscans++;
                                     uvpdTrue = true;
+                                    break;
+                                default:
+                                    Debug.WriteLine(precursor.ActivationMethod.ToString());
                                     break;
                             }
 
@@ -805,8 +915,6 @@ namespace GlyCounter
 
                                 RankOrderPeaks_mzml(sortedPeakDepths, spec);
 
-                                List<SimpleMzMLReader.Peak> oxoniumIonFoundPeaks = new List<SimpleMzMLReader.Peak>();
-
                                 foreach (OxoniumIon oxoIon in oxoniumIonHashSet)
                                 {
                                     oxoIon.intensity = 0;
@@ -817,7 +925,7 @@ namespace GlyCounter
                                     oxoIon.intensity = 0;
 
                                     var peaklist = spec.Peaks;
-                                    SimpleMzMLReader.Peak peak = GetPeak_mzml(spec, oxoIon.theoMZ, ppmTolerance);
+                                    SimpleMzMLReader.Peak peak = GetPeak_mzml(spec, oxoIon.theoMZ, usingda, tol);
 
                                     if (peak.Intensity > intensityThreshold)
                                     {
@@ -839,9 +947,13 @@ namespace GlyCounter
 
                                         if (oxoIon.theoMZ == 204.0867 && sortedPeakDepths[peak.Intensity] <= peakDepthThreshold_etd && etdTrue)
                                             test204 = true;
-                                        
+
                                         if (oxoIon.theoMZ == 204.0867 && sortedPeakDepths[peak.Intensity] <= peakDepthThreshold_uvpd && uvpdTrue)
                                             test204 = true;
+
+                                        oxoniumIonFoundPeaks.Add(oxoIon.theoMZ);
+                                        var massError = oxoIon.measuredMZ - oxoIon.theoMZ;
+                                        oxoniumIonFoundMassErrors.Add(massError);
                                     }
                                 }
                             }
@@ -907,20 +1019,21 @@ namespace GlyCounter
                                         numberOfMS2scansWithOxo_5plus_uvpd++;
                                 }
 
-                                double parentScan = 0;
-                                try
+                                double? parentScan = 0;
+                                var refSpec = precursor.PrecursorSpectrumRef;
+                                string[] refList = refSpec.Split('=');
+                                if (refList.Length > 2)
                                 {
-                                    var refSpec = precursor.PrecursorSpectrumRef;
-                                    string[] refList = refSpec.Split('=');
-                                    parentScan = double.Parse(refList[3], System.Globalization.NumberStyles.Float);
+                                    if (double.TryParse(refList[3], out double result))
+                                    {
+                                        parentScan = result;
+                                    }
                                 }
-                                catch (Exception ex)
-                                {
-                                    Console.WriteLine(ex.Message);
-                                }
+                                else { parentScan = null; }
+
                                 double scanTIC = spec.TotalIonCurrent;
 
-                                string[] ITlist = [];
+                                string[] ITlist = new string[0];
                                 foreach (var param in paramsList)
                                 {
                                     if (param.ToString().Contains("ion injection time"))
@@ -928,7 +1041,12 @@ namespace GlyCounter
                                         ITlist = param.ToString().Split('"');
                                     }
                                 }
-                                double scanInjTime = double.Parse(ITlist[1], System.Globalization.NumberStyles.Float);
+                                double scanInjTime = 0;
+
+                                if (ITlist.Length > 0)
+                                {
+                                    scanInjTime = double.Parse(ITlist[1], System.Globalization.NumberStyles.Float);
+                                }
 
                                 string fragmentationType = "";
                                 if (hcdTrue)
@@ -937,13 +1055,27 @@ namespace GlyCounter
                                     fragmentationType = "ETD";
                                 if (uvpdTrue)
                                     fragmentationType = "UVPD";
-                                
+
                                 double retentionTime = spec.ScanStartTime;
 
                                 List<double> oxoRanks = new List<double>();
 
-                                outputOxo.Write(specCount+1 + "\t" + retentionTime + "\t" + scanTIC + "\t" + totalOxoSignal + "\t" + scanInjTime + "\t" + fragmentationType + "\t" + parentScan + "\t" + numberOfOxoIons + "\t" + totalOxoSignal + "\t");
-                                outputPeakDepth.Write(specCount+1 + "\t" + retentionTime + "\t" + scanTIC + "\t" + totalOxoSignal + "\t" + scanInjTime + "\t" + fragmentationType + "\t" + parentScan + "\t" + numberOfOxoIons + "\t" + totalOxoSignal + "\t");
+                                string peakString = new string("");
+                                foreach (double theoMZ in oxoniumIonFoundPeaks)
+                                {
+                                    peakString = peakString + theoMZ.ToString() + "; ";
+                                }
+
+                                string errorString = new string("");
+                                foreach (double error in oxoniumIonFoundMassErrors)
+                                {
+                                    errorString = errorString + error.ToString("F6") + "; ";
+                                }
+
+                                outputOxo.Write(specCount + 1 + "\t" + retentionTime + "\t" + scanTIC + "\t" + totalOxoSignal + "\t" + scanInjTime + "\t" + fragmentationType + "\t" + parentScan + "\t" + numberOfOxoIons + "\t" + totalOxoSignal + "\t");
+                                outputPeakDepth.Write(specCount + 1 + "\t" + retentionTime + "\t" + scanTIC + "\t" + totalOxoSignal + "\t" + scanInjTime + "\t" + fragmentationType + "\t" + parentScan + "\t" + numberOfOxoIons + "\t" + totalOxoSignal + "\t");
+                                if (outputIPSA != null)
+                                    outputIPSA.WriteLine(specCount + 1 + "\t" + peakString + "\t" + errorString + "\t");
 
                                 foreach (OxoniumIon oxoIon in oxoniumIonHashSet)
                                 {
@@ -962,7 +1094,7 @@ namespace GlyCounter
 
                                         if (etdTrue && oxoIon.peakDepth <= peakDepthThreshold_etd)
                                             countOxoWithinPeakDepthThreshold++;
-                                        
+
                                         if (uvpdTrue && oxoIon.peakDepth <= peakDepthThreshold_uvpd)
                                             countOxoWithinPeakDepthThreshold++;
 
@@ -970,7 +1102,7 @@ namespace GlyCounter
 
                                 }
                                 double medianRanks = Statistics.Median(oxoRanks);
-                                
+
                                 //the median peak depth has to be "higher" (i.e., less than) the peak depth threshold 
                                 //considered also using the number of oxonium ions found has to be at least half to the total list looked for, but decided against it for now (what if big list?)
                                 if (oxoniumIonHashSet.Count < 6)
@@ -1021,7 +1153,7 @@ namespace GlyCounter
                                     likelyGlycoSpectrum = true;
                                     numberScansCountedLikelyGlyco_etd++;
                                 }
-                                
+
                                 if (uvpdTrue && countOxoWithinPeakDepthThreshold >= oxoCountRequirement && test204 && oxoTICfraction >= oxoTICfractionThreshold_uvpd)
                                 {
                                     likelyGlycoSpectrum = true;
@@ -1061,7 +1193,7 @@ namespace GlyCounter
                     double percentage4ox_etd = (double)numberOfMS2scansWithOxo_4_etd / (double)numberOfETDscans * 100;
                     double percentage5plusox_etd = (double)numberOfMS2scansWithOxo_5plus_etd / (double)numberOfETDscans * 100;
                     double percentageSum_etd = percentage1ox_etd + percentage2ox_etd + percentage3ox_etd + percentage4ox_etd + percentage5plusox_etd;
-                    
+
                     double percentage1ox_uvpd = (double)numberOfMS2scansWithOxo_1_uvpd / (double)numberOfUVPDscans * 100;
                     double percentage2ox_uvpd = (double)numberOfMS2scansWithOxo_2_uvpd / (double)numberOfUVPDscans * 100;
                     double percentage3ox_uvpd = (double)numberOfMS2scansWithOxo_3_uvpd / (double)numberOfUVPDscans * 100;
@@ -1077,7 +1209,7 @@ namespace GlyCounter
 
                     outputSummary.WriteLine("\tTotal\tHCD\tETD\tUVPD\t%Total\t%HCD\t%ETD\t%UVPD");
                     outputSummary.WriteLine("MS/MS Scans with OxoIons\t" + numberOfMS2scans + "\t" + numberOfHCDscans + "\t" + numberOfETDscans + "\t" + numberOfUVPDscans
-                        + "\t" + percentageSum + "\t" + percentageSum_hcd + "\t" + percentageSum_etd  + "\t" + percentageSum_uvpd);
+                        + "\t" + percentageSum + "\t" + percentageSum_hcd + "\t" + percentageSum_etd + "\t" + percentageSum_uvpd);
                     outputSummary.WriteLine("Likely Glyco\t" + numberScansCountedLikelyGlyco_total + "\t" + numberScansCountedLikelyGlyco_hcd + "\t" + numberScansCountedLikelyGlyco_etd + "\t" + numberScansCountedLikelyGlyco_uvpd
                         + "\t" + percentageLikelyGlyco_total + "\t" + percentageLikelyGlyco_hcd + "\t" + percentageLikelyGlyco_etd + "\t" + percentageLikelyGlyco_uvpd);
                     outputSummary.WriteLine("OxoCount_1\t" + numberOfMS2scansWithOxo_1 + "\t" + numberOfMS2scansWithOxo_1_hcd + "\t" + numberOfMS2scansWithOxo_1_etd + "\t" + numberOfMS2scansWithOxo_1_uvpd
@@ -1116,6 +1248,8 @@ namespace GlyCounter
                     outputSummary.Close();
                     outputOxo.Close();
                     outputPeakDepth.Close();
+                    if (outputIPSA != null)
+                        outputIPSA.Close();
 
                 }
 
@@ -1169,16 +1303,24 @@ namespace GlyCounter
 
                     StreamWriter outputOxo = new StreamWriter(filePath + "_GlyCounter_OxoSignal.txt");
                     StreamWriter outputPeakDepth = new StreamWriter(filePath + "_GlyCounter_OxoPeakDepth.txt");
+                    StreamWriter outputIPSA = null;
+                    if (ipsaCheckBox.Checked)
+                    {
+                        outputIPSA = new StreamWriter(filePath + "_Glycounter_IPSA.txt");
+                    }
+                        
                     StreamWriter outputSummary = new StreamWriter(filePath + "_GlyCounter_Summary.txt");
 
                     outputOxo.Write("ScanNumber\tRetentionTime\tScanTIC\tTotalOxoSignal\tScanInjTime\tDissociationType\tParentScan\tNumOxonium\tTotalOxoSignal\t");
                     outputPeakDepth.Write("ScanNumber\tRetentionTime\tScanTIC\tTotalOxoSignal\tScanInjTime\tDissociationType\tParentScan\tNumOxonium\tTotalOxoSignal\t");
+                    if (outputIPSA != null)
+                        outputIPSA.WriteLine("ScanNumber\tOxoniumIons\tMassError\t");
                     /*
                     outputSummary.WriteLine("Settings\tppmTol:\t" + ppmTolerance + "\tSNthreshold:\t" + SNthreshold + "\tHCDPeakDepthThreshold:\t" + peakDepthThreshold_hcd
                         + "\tETDPeakDepthThreshold:\t" + peakDepthThreshold_etd + "\tHCD TIC fraction:\t" + oxoTICfractionThreshold_hcd + "\tETD TIC fraction:\t" + oxoTICfractionThreshold_etd);
                     */
-                    outputSummary.WriteLine("Settings:\tppmTol=" + ppmTolerance + ", SNthreshold=" + SNthreshold + ", IntensityThreshold=" + intensityThreshold + ", PeakDepthThreshold_HCD=" + peakDepthThreshold_hcd
-                                            + ", PeakDepthThreshold_ETD=" + peakDepthThreshold_etd + ", PeakDepthThreshold_UVPD=" + peakDepthThreshold_uvpd + ", TICfraction_HCD=" + oxoTICfractionThreshold_hcd 
+                    outputSummary.WriteLine("Settings:\t" + toleranceString + tol + ", SNthreshold=" + SNthreshold + ", IntensityThreshold=" + intensityThreshold + ", PeakDepthThreshold_HCD=" + peakDepthThreshold_hcd
+                                            + ", PeakDepthThreshold_ETD=" + peakDepthThreshold_etd + ", PeakDepthThreshold_UVPD=" + peakDepthThreshold_uvpd + ", TICfraction_HCD=" + oxoTICfractionThreshold_hcd
                                             + ", TICfraction_ETD=" + oxoTICfractionThreshold_etd + ", TICfraction_UVPD=" + oxoTICfractionThreshold_uvpd);
                     outputSummary.WriteLine(VersionNumber_Label.Text + ", " + StartTimeLabel.Text);
                     outputSummary.WriteLine();
@@ -1199,6 +1341,9 @@ namespace GlyCounter
                             bool hcdTrue = false;
                             bool etdTrue = false;
                             bool uvpdTrue = false;
+
+                            List<double> oxoniumIonFoundPeaks = new List<double>();
+                            List<double> oxoniumIonFoundMassErrors = new List<double>();
 
                             if (rawFile.GetDissociationType(i).ToString().Equals("HCD"))
                             {
@@ -1236,8 +1381,6 @@ namespace GlyCounter
 
                                 RankOrderPeaks(sortedPeakDepths, spectrum);
 
-                                List<ThermoMzPeak> oxoniumIonFoundPeaks = new List<ThermoMzPeak>();
-
                                 foreach (OxoniumIon oxoIon in oxoniumIonHashSet)
                                 {
                                     oxoIon.intensity = 0;
@@ -1248,7 +1391,7 @@ namespace GlyCounter
                                     oxoIon.intensity = 0;
 
                                     //Trace.WriteLine("Scan: " + i);
-                                    ThermoMzPeak peak = GetPeak(spectrum, oxoIon.theoMZ, ppmTolerance, IT);
+                                    ThermoMzPeak peak = GetPeak(spectrum, oxoIon.theoMZ, usingda, tol, IT);
 
                                     if (!IT)
                                     {
@@ -1272,9 +1415,13 @@ namespace GlyCounter
 
                                             if (oxoIon.theoMZ == 204.0867 && sortedPeakDepths[peak.Intensity] <= peakDepthThreshold_etd && etdTrue)
                                                 test204 = true;
-                                            
+
                                             if (oxoIon.theoMZ == 204.0867 && sortedPeakDepths[peak.Intensity] <= peakDepthThreshold_uvpd && uvpdTrue)
                                                 test204 = true;
+
+                                            oxoniumIonFoundPeaks.Add(oxoIon.theoMZ);
+                                            var massError = oxoIon.measuredMZ - oxoIon.theoMZ;
+                                            oxoniumIonFoundMassErrors.Add(massError);
                                         }
                                     }
                                     else
@@ -1299,12 +1446,16 @@ namespace GlyCounter
 
                                             if (oxoIon.theoMZ == 204.0867 && sortedPeakDepths[peak.Intensity] <= peakDepthThreshold_etd && etdTrue)
                                                 test204 = true;
-                                            
+
                                             if (oxoIon.theoMZ == 204.0867 && sortedPeakDepths[peak.Intensity] <= peakDepthThreshold_uvpd && uvpdTrue)
                                                 test204 = true;
+
+                                            oxoniumIonFoundPeaks.Add(oxoIon.theoMZ);
+                                            var massError = oxoIon.measuredMZ - oxoIon.theoMZ;
+                                            oxoniumIonFoundMassErrors.Add(massError);
                                         }
                                     }
-                                    
+
                                 }
                             }
 
@@ -1317,7 +1468,7 @@ namespace GlyCounter
                                 //outputSummary.WriteLine("Oxonium Ions Searched for:\t" + oxoIonHeader);
                                 firstSpectrumInFile = false;
                             }
-                            
+
                             if (numberOfOxoIons > 0)
                             {
                                 if (numberOfOxoIons == 1)
@@ -1329,7 +1480,7 @@ namespace GlyCounter
                                         numberOfMS2scansWithOxo_1_etd++;
                                     if (uvpdTrue)
                                         numberOfMS2scansWithOxo_1_uvpd++;
-                                } 
+                                }
                                 if (numberOfOxoIons == 2)
                                 {
                                     numberOfMS2scansWithOxo_2++;
@@ -1377,11 +1528,8 @@ namespace GlyCounter
                                 {
                                     parentScan = rawFile.GetParentSpectrumNumber(i);
                                 }
-                                catch (Exception ex)
-                                {
-                                    Debug.WriteLine(ex);  
-                                }
-                                
+                                catch (Exception ex) { }
+
                                 double scanTIC = rawFile.GetTIC(i);
                                 double scanInjTime = rawFile.GetInjectionTime(i);
                                 string fragmenationType = rawFile.GetDissociationType(i).ToString();
@@ -1391,8 +1539,22 @@ namespace GlyCounter
 
                                 List<double> oxoRanks = new List<double>();
 
+                                string peakString = new string("");
+                                foreach (double theoMZ in oxoniumIonFoundPeaks)
+                                {
+                                    peakString = peakString + theoMZ.ToString() + "; ";
+                                }
+
+                                string errorString = new string("");
+                                foreach (double error in oxoniumIonFoundMassErrors)
+                                {
+                                    errorString = errorString + error.ToString("F6") + "; ";
+                                }
+
                                 outputOxo.Write(i + "\t" + retentionTime + "\t" + scanTIC + "\t" + totalOxoSignal + "\t" + scanInjTime + "\t" + fragmenationType + "\t" + parentScan + "\t" + numberOfOxoIons + "\t" + totalOxoSignal + "\t");
                                 outputPeakDepth.Write(i + "\t" + retentionTime + "\t" + scanTIC + "\t" + totalOxoSignal + "\t" + scanInjTime + "\t" + fragmenationType + "\t" + parentScan + "\t" + numberOfOxoIons + "\t" + totalOxoSignal + "\t");
+                                if (outputIPSA != null)
+                                    outputIPSA.WriteLine(i + "\t" + peakString + "\t" + errorString + "\t");
 
                                 foreach (OxoniumIon oxoIon in oxoniumIonHashSet)
                                 {
@@ -1412,7 +1574,7 @@ namespace GlyCounter
 
                                         if (etdTrue && oxoIon.peakDepth <= peakDepthThreshold_etd)
                                             countOxoWithinPeakDepthThreshold++;
-                                        
+
                                         if (uvpdTrue && oxoIon.peakDepth <= peakDepthThreshold_uvpd)
                                             countOxoWithinPeakDepthThreshold++;
                                     }
@@ -1422,10 +1584,10 @@ namespace GlyCounter
                                 double medianRanks = Statistics.Median(oxoRanks);
                                 //the median peak depth has to be "higher" (i.e., less than) the peak depth threshold 
                                 //considered also using the number of oxonium ions found has to be at least half to the total list looked for, but decided against it for now (what if big list?)
-                                if (oxoniumIonHashSet.Count < 6) 
+                                if (oxoniumIonHashSet.Count < 6)
                                     halfTotalList = 4;
-                                
-                                if (oxoniumIonHashSet.Count > 15) 
+
+                                if (oxoniumIonHashSet.Count > 15)
                                     halfTotalList = 8;
 
                                 //if not using 204, the below test will fail by default, so we need to add this in to make sure we check the calculation even if 204 isn't being used.
@@ -1471,7 +1633,7 @@ namespace GlyCounter
                                     likelyGlycoSpectrum = true;
                                     numberScansCountedLikelyGlyco_etd++;
                                 }
-                                
+
                                 if (uvpdTrue && numberOfOxoIons >= oxoCountRequirement && test204 && oxoTICfraction >= oxoTICfractionThreshold_uvpd)
                                 {
                                     likelyGlycoSpectrum = true;
@@ -1486,7 +1648,7 @@ namespace GlyCounter
                                 outputPeakDepth.WriteLine();
                             }
                             FinishTimeLabel.Text = "Finish time: still running as of " + DateTime.Now.ToString("HH:mm:ss");
-                            FinishTimeLabel.Refresh(); 
+                            FinishTimeLabel.Refresh();
                         }
                     }
 
@@ -1510,7 +1672,7 @@ namespace GlyCounter
                     double percentage4ox_etd = (double)numberOfMS2scansWithOxo_4_etd / (double)numberOfETDscans * 100;
                     double percentage5plusox_etd = (double)numberOfMS2scansWithOxo_5plus_etd / (double)numberOfETDscans * 100;
                     double percentageSum_etd = percentage1ox_etd + percentage2ox_etd + percentage3ox_etd + percentage4ox_etd + percentage5plusox_etd;
-                    
+
                     double percentage1ox_uvpd = (double)numberOfMS2scansWithOxo_1_uvpd / (double)numberOfUVPDscans * 100;
                     double percentage2ox_uvpd = (double)numberOfMS2scansWithOxo_2_uvpd / (double)numberOfUVPDscans * 100;
                     double percentage3ox_uvpd = (double)numberOfMS2scansWithOxo_3_uvpd / (double)numberOfUVPDscans * 100;
@@ -1536,7 +1698,7 @@ namespace GlyCounter
 
                     outputSummary.WriteLine("\tTotal\tHCD\tETD\tUVPD\t%Total\t%HCD\t%ETD\t%UVPD");
                     outputSummary.WriteLine("MS/MS Scans with OxoIons\t" + numberOfMS2scans + "\t" + numberOfHCDscans + "\t" + numberOfETDscans + "\t" + numberOfUVPDscans
-                        + "\t" + percentageSum + "\t" + percentageSum_hcd + "\t" + percentageSum_etd  + "\t" + percentageSum_uvpd);
+                        + "\t" + percentageSum + "\t" + percentageSum_hcd + "\t" + percentageSum_etd + "\t" + percentageSum_uvpd);
                     outputSummary.WriteLine("Likely Glyco\t" + numberScansCountedLikelyGlyco_total + "\t" + numberScansCountedLikelyGlyco_hcd + "\t" + numberScansCountedLikelyGlyco_etd + "\t" + numberScansCountedLikelyGlyco_uvpd
                         + "\t" + percentageLikelyGlyco_total + "\t" + percentageLikelyGlyco_hcd + "\t" + percentageLikelyGlyco_etd + "\t" + percentageLikelyGlyco_uvpd);
                     outputSummary.WriteLine("OxoCount_1\t" + numberOfMS2scansWithOxo_1 + "\t" + numberOfMS2scansWithOxo_1_hcd + "\t" + numberOfMS2scansWithOxo_1_etd + "\t" + numberOfMS2scansWithOxo_1_uvpd
@@ -1576,6 +1738,8 @@ namespace GlyCounter
                     outputSummary.Close();
                     outputOxo.Close();
                     outputPeakDepth.Close();
+                    if (outputIPSA != null)
+                        outputIPSA.Close();
                     rawFile.Dispose();
                 }
 
@@ -1623,16 +1787,23 @@ namespace GlyCounter
 
                     StreamWriter outputOxo = new StreamWriter(filePath + "_GlyCounter_OxoSignal.txt");
                     StreamWriter outputPeakDepth = new StreamWriter(filePath + "_GlyCounter_OxoPeakDepth.txt");
+                    StreamWriter outputIPSA = null;
+                    if (ipsaCheckBox.Checked)
+                    {
+                        outputIPSA = new StreamWriter(filePath + "_Glycounter_IPSA.txt");
+                    }
                     StreamWriter outputSummary = new StreamWriter(filePath + "_GlyCounter_Summary.txt");
 
                     outputOxo.Write("ScanNumber\tRetentionTime\tScanTIC\tTotalOxoSignal\tScanInjTime\tDissociationType\tParentScan\tNumOxonium\tTotalOxoSignal\t");
                     outputPeakDepth.Write("ScanNumber\tRetentionTime\tScanTIC\tTotalOxoSignal\tScanInjTime\tDissociationType\tParentScan\tNumOxonium\tTotalOxoSignal\t");
+                    if (outputIPSA != null)
+                        outputIPSA.WriteLine("ScanNumber\tOxoniumIons\tMassError\t");
                     /*
                     outputSummary.WriteLine("Settings\tppmTol:\t" + ppmTolerance + "\tSNthreshold:\t" + SNthreshold + "\tHCDPeakDepthThreshold:\t" + peakDepthThreshold_hcd
                         + "\tETDPeakDepthThreshold:\t" + peakDepthThreshold_etd + "\tHCD TIC fraction:\t" + oxoTICfractionThreshold_hcd + "\tETD TIC fraction:\t" + oxoTICfractionThreshold_etd);
                     */
-                    outputSummary.WriteLine("Settings:\tppmTol=" + ppmTolerance + ", SNthreshold=" + SNthreshold + ", IntensityThreshold=" + intensityThreshold + ", PeakDepthThreshold_HCD=" + peakDepthThreshold_hcd
-                                            + ", PeakDepthThreshold_ETD=" + peakDepthThreshold_etd + ", PeakDepthThreshold_UVPD=" + peakDepthThreshold_uvpd + ", TICfraction_HCD=" + oxoTICfractionThreshold_hcd 
+                    outputSummary.WriteLine("Settings:\t" + toleranceString + tol + ", SNthreshold=" + SNthreshold + ", IntensityThreshold=" + intensityThreshold + ", PeakDepthThreshold_HCD=" + peakDepthThreshold_hcd
+                                            + ", PeakDepthThreshold_ETD=" + peakDepthThreshold_etd + ", PeakDepthThreshold_UVPD=" + peakDepthThreshold_uvpd + ", TICfraction_HCD=" + oxoTICfractionThreshold_hcd
                                             + ", TICfraction_ETD=" + oxoTICfractionThreshold_etd + ", TICfraction_UVPD=" + oxoTICfractionThreshold_uvpd);
                     outputSummary.WriteLine(VersionNumber_Label.Text + ", " + StartTimeLabel.Text);
                     outputSummary.WriteLine();
@@ -1661,9 +1832,16 @@ namespace GlyCounter
                                 bool etdTrue = false;
                                 bool uvpdTrue = false;
 
+                                List<double> oxoniumIonFoundPeaks = new List<double>();
+                                List<double> oxoniumIonFoundMassErrors = new List<double>();
+
                                 switch (precursor.ActivationMethod)
                                 {
                                     case "beam-type collision-induced dissociation":
+                                        numberOfHCDscans++;
+                                        hcdTrue = true;
+                                        break;
+                                    case "collision-induced dissociation":
                                         numberOfHCDscans++;
                                         hcdTrue = true;
                                         break;
@@ -1675,9 +1853,16 @@ namespace GlyCounter
                                         numberOfETDscans++;
                                         etdTrue = true;
                                         break;
+                                    case "electron capture dissociation":
+                                        numberOfETDscans++;
+                                        etdTrue = true;
+                                        break;
                                     case "photodissociation":
                                         numberOfUVPDscans++;
                                         uvpdTrue = true;
+                                        break;
+                                    default:
+                                        Debug.WriteLine(precursor.ActivationMethod.ToString());
                                         break;
                                 }
 
@@ -1690,8 +1875,6 @@ namespace GlyCounter
 
                                     RankOrderPeaks_mzml(sortedPeakDepths, spec);
 
-                                    List<SimpleMzMLReader.Peak> oxoniumIonFoundPeaks = new List<SimpleMzMLReader.Peak>();
-
                                     foreach (OxoniumIon oxoIon in oxoniumIonHashSet)
                                     {
                                         oxoIon.intensity = 0;
@@ -1702,7 +1885,7 @@ namespace GlyCounter
                                         oxoIon.intensity = 0;
 
                                         //Trace.WriteLine("Scan: " + i);
-                                        SimpleMzMLReader.Peak peak = GetPeak_mzml(spec, oxoIon.theoMZ, ppmTolerance);
+                                        SimpleMzMLReader.Peak peak = GetPeak_mzml(spec, oxoIon.theoMZ, usingda, tol);
 
                                         if (peak.Intensity > intensityThreshold)
                                         {
@@ -1724,9 +1907,13 @@ namespace GlyCounter
 
                                             if (oxoIon.theoMZ == 204.0867 && sortedPeakDepths[peak.Intensity] <= peakDepthThreshold_etd && etdTrue)
                                                 test204 = true;
-                                            
+
                                             if (oxoIon.theoMZ == 204.0867 && sortedPeakDepths[peak.Intensity] <= peakDepthThreshold_uvpd && uvpdTrue)
                                                 test204 = true;
+
+                                            oxoniumIonFoundPeaks.Add(oxoIon.theoMZ);
+                                            var massError = oxoIon.measuredMZ - oxoIon.theoMZ;
+                                            oxoniumIonFoundMassErrors.Add(massError);
                                         }
                                     }
                                 }
@@ -1795,22 +1982,28 @@ namespace GlyCounter
                                             numberOfMS2scansWithOxo_5plus_uvpd++;
                                     }
 
-                                    double parentScan = 0;
-                                    try
+                                    double? parentScan = 0;
+                                    var refSpec = precursor.PrecursorSpectrumRef;
+                                    string[] refList = refSpec.Split('=');
+
+                                    if (refList.Length > 2)
                                     {
-                                        var refSpec = precursor.PrecursorSpectrumRef;
-                                        string[] refList = refSpec.Split('=');
-                                        parentScan = double.Parse(refList[3], System.Globalization.NumberStyles.Float);
+                                        if (double.TryParse(refList[3], out double result))
+                                        {
+                                            parentScan = result;
+                                        }
                                     }
-                                    catch (Exception ex)
+
+                                    else
                                     {
-                                        Debug.WriteLine(ex.Message);
+                                        parentScan = null;
                                     }
+
                                     try
                                     {
                                         double scanTIC = spec.TotalIonCurrent;
 
-                                        string[] ITlist = [];
+                                        string[] ITlist = new string[0];
                                         foreach (var param in paramsList)
                                         {
                                             if (param.ToString().Contains("ion injection time"))
@@ -1818,10 +2011,16 @@ namespace GlyCounter
                                                 ITlist = param.ToString().Split('"');
                                             }
                                         }
-                                        double scanInjTime = double.Parse(ITlist[1], System.Globalization.NumberStyles.Float);
+
+                                        double scanInjTime = 0;
+
+                                        if (ITlist.Length != 0)
+                                        {
+                                            scanInjTime = double.Parse(ITlist[1], System.Globalization.NumberStyles.Float);
+                                        }
 
                                         string fragmentationType = "";
-                                        
+
                                         if (hcdTrue)
                                         {
                                             fragmentationType = "HCD";
@@ -1834,14 +2033,27 @@ namespace GlyCounter
                                         {
                                             fragmentationType = "UVPD";
                                         }
-                                        
+
                                         double retentionTime = spec.ScanStartTime;
 
                                         List<double> oxoRanks = new List<double>();
 
-                                        outputOxo.Write(specCount+1 + "\t" + retentionTime + "\t" + scanTIC + "\t" + totalOxoSignal + "\t" + scanInjTime + "\t" + fragmentationType + "\t" + parentScan + "\t" + numberOfOxoIons + "\t" + totalOxoSignal + "\t");
-                                        Console.WriteLine(specCount+1 + "\t" + retentionTime + "\t" + scanTIC + "\t" + totalOxoSignal + "\t" + scanInjTime + "\t" + fragmentationType + "\t" + parentScan + "\t" + numberOfOxoIons + "\t" + totalOxoSignal + "\t");
-                                        outputPeakDepth.Write(specCount+1 + "\t" + retentionTime + "\t" + scanTIC + "\t" + totalOxoSignal + "\t" + scanInjTime + "\t" + fragmentationType + "\t" + parentScan + "\t" + numberOfOxoIons + "\t" + totalOxoSignal + "\t");
+                                        string peakString = new string("");
+                                        foreach (double theoMZ in oxoniumIonFoundPeaks)
+                                        {
+                                            peakString = peakString + theoMZ.ToString() + "; ";
+                                        }
+
+                                        string errorString = new string("");
+                                        foreach (double error in oxoniumIonFoundMassErrors)
+                                        {
+                                            errorString = errorString + error.ToString("F6") + "; ";
+                                        }
+
+                                        outputOxo.Write(specCount + 1 + "\t" + retentionTime + "\t" + scanTIC + "\t" + totalOxoSignal + "\t" + scanInjTime + "\t" + fragmentationType + "\t" + parentScan + "\t" + numberOfOxoIons + "\t" + totalOxoSignal + "\t");
+                                        outputPeakDepth.Write(specCount + 1 + "\t" + retentionTime + "\t" + scanTIC + "\t" + totalOxoSignal + "\t" + scanInjTime + "\t" + fragmentationType + "\t" + parentScan + "\t" + numberOfOxoIons + "\t" + totalOxoSignal + "\t");
+                                        if (outputIPSA != null)
+                                            outputIPSA.WriteLine(specCount + 1 + "\t" + peakString + "\t" + errorString + "\t");
 
                                         foreach (OxoniumIon oxoIon in oxoniumIonHashSet)
                                         {
@@ -1861,7 +2073,7 @@ namespace GlyCounter
 
                                                 if (etdTrue && oxoIon.peakDepth <= peakDepthThreshold_etd)
                                                     countOxoWithinPeakDepthThreshold++;
-                                                
+
                                                 if (uvpdTrue && oxoIon.peakDepth <= peakDepthThreshold_uvpd)
                                                     countOxoWithinPeakDepthThreshold++;
                                             }
@@ -1875,7 +2087,7 @@ namespace GlyCounter
                                             halfTotalList = 4;
                                         if (oxoniumIonHashSet.Count > 15)
                                             halfTotalList = 8;
-                                        
+
                                         //if not using 204, the below test will fail by default, so we need to add this in to make sure we check the calculation even if 204 isn't being used.
                                         if (!using204)
                                             test204 = true;
@@ -1919,7 +2131,7 @@ namespace GlyCounter
                                             likelyGlycoSpectrum = true;
                                             numberScansCountedLikelyGlyco_etd++;
                                         }
-                                        
+
                                         if (uvpdTrue && numberOfOxoIons >= oxoCountRequirement && test204 && oxoTICfraction >= oxoTICfractionThreshold_uvpd)
                                         {
                                             likelyGlycoSpectrum = true;
@@ -1947,7 +2159,7 @@ namespace GlyCounter
                             specCount++;
                         }
                     }
-                        
+
 
                     double percentage1ox = (double)numberOfMS2scansWithOxo_1 / (double)numberOfMS2scans * 100;
                     double percentage2ox = (double)numberOfMS2scansWithOxo_2 / (double)numberOfMS2scans * 100;
@@ -1969,7 +2181,7 @@ namespace GlyCounter
                     double percentage4ox_etd = (double)numberOfMS2scansWithOxo_4_etd / (double)numberOfETDscans * 100;
                     double percentage5plusox_etd = (double)numberOfMS2scansWithOxo_5plus_etd / (double)numberOfETDscans * 100;
                     double percentageSum_etd = percentage1ox_etd + percentage2ox_etd + percentage3ox_etd + percentage4ox_etd + percentage5plusox_etd;
-                    
+
                     double percentage1ox_uvpd = (double)numberOfMS2scansWithOxo_1_uvpd / (double)numberOfUVPDscans * 100;
                     double percentage2ox_uvpd = (double)numberOfMS2scansWithOxo_2_uvpd / (double)numberOfUVPDscans * 100;
                     double percentage3ox_uvpd = (double)numberOfMS2scansWithOxo_3_uvpd / (double)numberOfUVPDscans * 100;
@@ -1995,7 +2207,7 @@ namespace GlyCounter
 
                     outputSummary.WriteLine("\tTotal\tHCD\tETD\tUVPD\t%Total\t%HCD\t%ETD\t%UVPD");
                     outputSummary.WriteLine("MS/MS Scans with OxoIons\t" + numberOfMS2scans + "\t" + numberOfHCDscans + "\t" + numberOfETDscans + "\t" + numberOfUVPDscans
-                        + "\t" + percentageSum + "\t" + percentageSum_hcd + "\t" + percentageSum_etd  + "\t" + percentageSum_uvpd);
+                        + "\t" + percentageSum + "\t" + percentageSum_hcd + "\t" + percentageSum_etd + "\t" + percentageSum_uvpd);
                     outputSummary.WriteLine("Likely Glyco\t" + numberScansCountedLikelyGlyco_total + "\t" + numberScansCountedLikelyGlyco_hcd + "\t" + numberScansCountedLikelyGlyco_etd + "\t" + numberScansCountedLikelyGlyco_uvpd
                         + "\t" + percentageLikelyGlyco_total + "\t" + percentageLikelyGlyco_hcd + "\t" + percentageLikelyGlyco_etd + "\t" + percentageLikelyGlyco_uvpd);
                     outputSummary.WriteLine("OxoCount_1\t" + numberOfMS2scansWithOxo_1 + "\t" + numberOfMS2scansWithOxo_1_hcd + "\t" + numberOfMS2scansWithOxo_1_etd + "\t" + numberOfMS2scansWithOxo_1_uvpd
@@ -2035,6 +2247,8 @@ namespace GlyCounter
                     outputSummary.Close();
                     outputOxo.Close();
                     outputPeakDepth.Close();
+                    if (outputIPSA != null)
+                        outputIPSA.Close();
                 }
             }
 
@@ -2048,9 +2262,19 @@ namespace GlyCounter
 
         }
 
-        public static ThermoMzPeak GetPeak(ThermoSpectrum spectrum, double mz, double ppmTolerance, bool IT = false)
+        public static ThermoMzPeak GetPeak(ThermoSpectrum spectrum, double mz, bool usingda, double tolerance, bool IT = false)
         {
-            DoubleRange rangeOxonium = DoubleRange.FromPPM(mz, ppmTolerance);
+            DoubleRange rangeOxonium = new DoubleRange();
+
+            if (usingda)
+            {
+                rangeOxonium = DoubleRange.FromDa(mz, tolerance);
+            }
+            else
+            {
+                rangeOxonium = DoubleRange.FromPPM(mz, tolerance);
+            }
+
             List<ThermoMzPeak> peaks;
 
             //Trace.WriteLine("spectrum : " + rangeOxonium.ToString());
@@ -2084,17 +2308,26 @@ namespace GlyCounter
             return returnPeak;
         }
 
-         public static SimpleMzMLReader.Peak GetPeak_mzml(SimpleMzMLReader.SimpleSpectrum spectrum, double mz,
-            double ppmTolerance)
-         {
-            //Create start and end ppm values
-            double startOxonium = -1 * (ppmTolerance / Math.Pow(10, 6)) * mz + mz;
-            double endOxonium = (ppmTolerance / Math.Pow(10, 6)) * mz + mz;
+        public static SimpleMzMLReader.Peak GetPeak_mzml(SimpleMzMLReader.SimpleSpectrum spectrum, double mz, bool usingda, double tolerance)
+        {
+            //Create start and end m/z values
+            double startOxonium = new double();
+            double endOxonium = new double();
+            if (usingda)
+            {
+                startOxonium = mz - tolerance;
+                endOxonium = mz + tolerance;
+            }
+            else
+            {
+                startOxonium = -1 * (tolerance / Math.Pow(10, 6)) * mz + mz;
+                endOxonium = (tolerance / Math.Pow(10, 6)) * mz + mz;
+            }
 
             var peaks = spectrum.Peaks;
             List<SimpleMzMLReader.Peak> peakList = new List<SimpleMzMLReader.Peak>();
             //ordering by intensity instead of S/N here  
-            foreach(SimpleMzMLReader.Peak peak in peaks)
+            foreach (SimpleMzMLReader.Peak peak in peaks)
             {
                 if (peak.Mz > startOxonium && peak.Mz < endOxonium)
                 {
@@ -2116,7 +2349,7 @@ namespace GlyCounter
                 }
             }
             return returnPeak;
-         }
+        }
 
         public static Dictionary<double, int> RankOrderPeaks(Dictionary<double, int> dictionary, ThermoSpectrum spectrum)
         {
@@ -2477,7 +2710,7 @@ namespace GlyCounter
                 Properties.Settings1.Default.LastOpenFolder = Path.GetDirectoryName(fdlg.FileName);
                 Properties.Settings1.Default.Save();
             }
-            
+
         }
         //find the raw file to look for Y-ions
         private void BrowseGlycoPepRawFiles_Button_Click(object sender, EventArgs e)
@@ -2502,7 +2735,7 @@ namespace GlyCounter
                 Properties.Settings1.Default.LastOpenFolder = Path.GetDirectoryName(fdlg.FileName);
                 Properties.Settings1.Default.Save();
             }
-            
+
         }
 
         //set up custom additions for Y-ion upload
@@ -2528,7 +2761,7 @@ namespace GlyCounter
                 Properties.Settings1.Default.LastOpenFolder = Path.GetDirectoryName(fdlg.FileName);
                 Properties.Settings1.Default.Save();
             }
-            
+
         }
 
         //set up custom substractions for Y-ion upload
@@ -2554,7 +2787,7 @@ namespace GlyCounter
                 Properties.Settings1.Default.LastOpenFolder = Path.GetDirectoryName(fdlg.FileName);
                 Properties.Settings1.Default.Save();
             }
-            
+
         }
 
         //setting variables to file paths so they can be processed later
@@ -2820,6 +3053,8 @@ namespace GlyCounter
         //start the Y-ion processing
         private void Ynaught_StartButton_Click(object sender, EventArgs e)
         {
+            bool Ynaught_usingda = false;
+
             timer2.Interval = 1000;
             timer2.Tick += new EventHandler(OnTimerTick);
             timer2.Start();
@@ -2839,8 +3074,22 @@ namespace GlyCounter
             }
 
             //either take in custom values or use defaults
-            if (CanConvertDouble(Ynaught_ppmTolTextBox.Text, ppmTolerance))
-                Ynaught_ppmTolerance = Convert.ToDouble(Ynaught_ppmTolTextBox.Text);
+            if (Ynaught_DaCheckBox.Checked)
+            {
+                if (CanConvertDouble(Ynaught_ppmTolTextBox.Text, daTolerance))
+                    Ynaught_daTolerance = Convert.ToDouble(Ynaught_ppmTolTextBox.Text);
+                Ynaught_usingda = true;
+            }
+            else
+            {
+                if (CanConvertDouble(Ynaught_ppmTolTextBox.Text, ppmTolerance))
+                    Ynaught_ppmTolerance = Convert.ToDouble(Ynaught_ppmTolTextBox.Text);
+            }
+
+            if (Ynaught_usingda)
+                Ynaught_tol = daTolerance;
+            else
+                Ynaught_tol = ppmTolerance;
 
             if (CanConvertDouble(Ynaught_SNthresholdTextBox.Text, SNthreshold))
                 Ynaught_SNthreshold = Convert.ToDouble(Ynaught_SNthresholdTextBox.Text);
@@ -3047,7 +3296,12 @@ namespace GlyCounter
             outputSummary.WriteLine("Settings\tppmTol:\t" + ppmTolerance + "\tSNthreshold:\t" + SNthreshold + "\tHCDPeakDepthThreshold:\t" + peakDepthThreshold_hcd
                 + "\tETDPeakDepthThreshold:\t" + peakDepthThreshold_etd + "\tHCD TIC fraction:\t" + oxoTICfractionThreshold_hcd + "\tETD TIC fraction:\t" + oxoTICfractionThreshold_etd);
             */
-            outputSummary.WriteLine("Settings:\tppmTol=" + Ynaught_ppmTolerance + ", SNthreshold=" + Ynaught_SNthreshold
+
+            string toleranceString = "ppmTol= ";
+            if (Ynaught_usingda)
+                toleranceString = "daTol= ";
+
+            outputSummary.WriteLine("Settings:\t" + toleranceString + Ynaught_tol + ", SNthreshold= " + Ynaught_SNthreshold
                 + ", X setting for z-X=" + Ynaught_chargeStateMod_X + ", Y setting for z-Y=" + Ynaught_chargeStateMod_Y + ", First isotope checked: "
                 + FirstIsotopeCheckBox.Checked + ", Second isotope checked: " + SecondIsotopeCheckBox.Checked);
             outputSummary.WriteLine(VersionNumber_Label.Text + ", " + Ynaught_startTimeLabel.Text);
@@ -3253,7 +3507,7 @@ namespace GlyCounter
                             if (!yIon.glycanSource.Contains("Subtraction"))
                             {
                                 double yIon_mz = (peptideNoGlycan_MonoMass + yIon.theoMass + (i * Constants.Proton)) / i;
-                                ThermoMzPeak peak = GetPeak(spectrum, yIon_mz, Ynaught_ppmTolerance);
+                                ThermoMzPeak peak = GetPeak(spectrum, yIon_mz, Ynaught_usingda, Ynaught_tol);
 
                                 if (peak != null && peak.Intensity > 0 && peak.SignalToNoise > SNthreshold)
                                 {
@@ -3266,14 +3520,14 @@ namespace GlyCounter
                                     if (FirstIsotopeCheckBox.Checked)
                                     {
                                         double yIon_mzfirstIso = (peptideNoGlycan_firstIsoMass + yIon.theoMass + (i * Constants.Proton)) / i;
-                                        ThermoMzPeak firstIsotopePeak = GetPeak(spectrum, yIon_mzfirstIso, Ynaught_ppmTolerance);
+                                        ThermoMzPeak firstIsotopePeak = GetPeak(spectrum, yIon_mzfirstIso, Ynaught_usingda, Ynaught_tol);
                                         if (firstIsotopePeak != null && firstIsotopePeak.Intensity > 0 && firstIsotopePeak.SignalToNoise > SNthreshold)
                                             firstIsotopeIntensity = firstIsotopePeak.Intensity;
                                     }
                                     if (SecondIsotopeCheckBox.Checked)
                                     {
                                         double yIon_mzSecondIso = (peptideNoGlycan_secondIsoMass + yIon.theoMass + (i * Constants.Proton)) / i;
-                                        ThermoMzPeak secondIsotopePeak = GetPeak(spectrum, yIon_mzSecondIso, Ynaught_ppmTolerance);
+                                        ThermoMzPeak secondIsotopePeak = GetPeak(spectrum, yIon_mzSecondIso, Ynaught_usingda, Ynaught_tol);
                                         if (secondIsotopePeak != null && secondIsotopePeak.Intensity > 0 && secondIsotopePeak.SignalToNoise > SNthreshold)
                                             secondIsotopeIntensity = secondIsotopePeak.Intensity;
                                     }
@@ -3291,7 +3545,7 @@ namespace GlyCounter
                             else
                             {
                                 double yIon_mz = (glycopeptide_MonoMass - yIon.theoMass + (i * Constants.Proton)) / i;
-                                ThermoMzPeak peak = GetPeak(spectrum, yIon_mz, Ynaught_ppmTolerance);
+                                ThermoMzPeak peak = GetPeak(spectrum, yIon_mz, Ynaught_usingda, Ynaught_tol);
 
                                 if (peak != null && peak.Intensity > 0 && peak.SignalToNoise > SNthreshold)
                                 {
@@ -3304,14 +3558,14 @@ namespace GlyCounter
                                     if (FirstIsotopeCheckBox.Checked)
                                     {
                                         double yIon_mzfirstIso = (glycopeptide_firstIsoMass - yIon.theoMass + (i * Constants.Proton)) / i;
-                                        ThermoMzPeak firstIsotopePeak = GetPeak(spectrum, yIon_mzfirstIso, Ynaught_ppmTolerance);
+                                        ThermoMzPeak firstIsotopePeak = GetPeak(spectrum, yIon_mzfirstIso, Ynaught_usingda, Ynaught_tol);
                                         if (firstIsotopePeak != null && firstIsotopePeak.Intensity > 0 && firstIsotopePeak.SignalToNoise > SNthreshold)
                                             firstIsotopeIntensity = firstIsotopePeak.Intensity;
                                     }
                                     if (SecondIsotopeCheckBox.Checked)
                                     {
                                         double yIon_mzSecondIso = (glycopeptide_secondIsoMass - yIon.theoMass + (i * Constants.Proton)) / i;
-                                        ThermoMzPeak secondIsotopePeak = GetPeak(spectrum, yIon_mzSecondIso, Ynaught_ppmTolerance);
+                                        ThermoMzPeak secondIsotopePeak = GetPeak(spectrum, yIon_mzSecondIso, Ynaught_usingda, Ynaught_tol);
                                         if (secondIsotopePeak != null && secondIsotopePeak.Intensity > 0 && secondIsotopePeak.SignalToNoise > SNthreshold)
                                             secondIsotopeIntensity = secondIsotopePeak.Intensity;
                                     }
@@ -3489,6 +3743,24 @@ namespace GlyCounter
             yIonHashSet.Clear();
         }
 
-        
+        private void ppmTol_label_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void DaltonCheckBox_CheckedChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void Ynaught_DaCheckBox_CheckedChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void checkBox1_CheckedChanged(object sender, EventArgs e)
+        {
+
+        }
     }
 }

@@ -82,6 +82,7 @@
             GlyCounterLogo = new PictureBox();
             GlyCounter_AllTabs = new TabControl();
             GlyCounter_Tab = new TabPage();
+            DaltonCheckBox = new CheckBox();
             OxoCountThreshold_uvpd_label = new Label();
             uvpdTICfraction_Label = new Label();
             PeakDepth_label_UVPD = new Label();
@@ -94,6 +95,7 @@
             intensityThresholdTextBox = new TextBox();
             VersionNumber_Label = new Label();
             YnaughtTab = new TabPage();
+            Ynaught_DaCheckBox = new CheckBox();
             BrowseGlycans_Button = new Button();
             LoadInGlycanMasses_TextBox = new TextBox();
             Ynaught_GlyCounterLogo = new PictureBox();
@@ -144,6 +146,7 @@
             BrowseGlycoPepIDs = new Button();
             LoadInGlycoPepIDs_TextBox = new TextBox();
             timer2 = new System.Windows.Forms.Timer(components);
+            ipsaCheckBox = new CheckBox();
             ((System.ComponentModel.ISupportInitialize)GlyCounterLogo).BeginInit();
             GlyCounter_AllTabs.SuspendLayout();
             GlyCounter_Tab.SuspendLayout();
@@ -188,7 +191,7 @@
             // 
             HexNAcCheckedListBox.CheckOnClick = true;
             HexNAcCheckedListBox.FormattingEnabled = true;
-            HexNAcCheckedListBox.Items.AddRange(new object[] { "84.0444, HexNAc - C2H8O4", "126.055, HexNAc - C2H6O3", "138.055, HexNAc - CH6O3", "144.0655, HexNAc - C2H4O2", "168.0655, HexNAc - 2H2O", "186.0761, HexNAc - H20", "204.0867, HexNAc" });
+            HexNAcCheckedListBox.Items.AddRange(new object[] { "84.0444, HexNAc - C2H8O4", "126.055, HexNAc - C2H6O3", "138.055, HexNAc - CH6O3", "144.0655, HexNAc - C2H4O2", "168.0655, HexNAc - 2H2O", "186.0761, HexNAc - H2O", "204.0867, HexNAc" });
             HexNAcCheckedListBox.Location = new Point(16, 137);
             HexNAcCheckedListBox.Margin = new Padding(4, 3, 4, 3);
             HexNAcCheckedListBox.Name = "HexNAcCheckedListBox";
@@ -212,7 +215,7 @@
             // 
             SialicAcidCheckedListBox.CheckOnClick = true;
             SialicAcidCheckedListBox.FormattingEnabled = true;
-            SialicAcidCheckedListBox.Items.AddRange(new object[] { "274.0921, NeuAc-H2O", "292.1028, NeuAc", "316.103, NeuAc[Ac] - H2O", "334.113, NeuAc[Ac]", "290.0870, NeuGc - H2O", "308.0976, NeuGc", "332.098, NeuGc[Ac] - H2O", "350.1081, NeuGc[Ac]" });
+            SialicAcidCheckedListBox.Items.AddRange(new object[] { "274.0921, NeuAc-H2O", "292.1027, NeuAc", "316.103, NeuAc[Ac] - H2O", "334.113, NeuAc[Ac]", "290.0870, NeuGc - H2O", "308.0976, NeuGc", "332.098, NeuGc[Ac] - H2O", "350.1081, NeuGc[Ac]" });
             SialicAcidCheckedListBox.Location = new Point(315, 137);
             SialicAcidCheckedListBox.Margin = new Padding(4, 3, 4, 3);
             SialicAcidCheckedListBox.Name = "SialicAcidCheckedListBox";
@@ -337,9 +340,9 @@
             ppmTol_label.Location = new Point(981, 112);
             ppmTol_label.Margin = new Padding(4, 0, 4, 0);
             ppmTol_label.Name = "ppmTol_label";
-            ppmTol_label.Size = new Size(85, 15);
+            ppmTol_label.Size = new Size(144, 15);
             ppmTol_label.TabIndex = 21;
-            ppmTol_label.Text = "ppm Tolerance";
+            ppmTol_label.Text = "Tolerance (default = ppm)";
             // 
             // CheckAll_Button
             // 
@@ -682,6 +685,8 @@
             // 
             // GlyCounter_Tab
             // 
+            GlyCounter_Tab.Controls.Add(ipsaCheckBox);
+            GlyCounter_Tab.Controls.Add(DaltonCheckBox);
             GlyCounter_Tab.Controls.Add(OxoCountThreshold_uvpd_label);
             GlyCounter_Tab.Controls.Add(uvpdTICfraction_Label);
             GlyCounter_Tab.Controls.Add(PeakDepth_label_UVPD);
@@ -749,6 +754,17 @@
             GlyCounter_Tab.TabIndex = 0;
             GlyCounter_Tab.Text = "Pre-ID";
             GlyCounter_Tab.UseVisualStyleBackColor = true;
+            // 
+            // DaltonCheckBox
+            // 
+            DaltonCheckBox.AutoSize = true;
+            DaltonCheckBox.Location = new Point(1132, 112);
+            DaltonCheckBox.Name = "DaltonCheckBox";
+            DaltonCheckBox.Size = new Size(40, 19);
+            DaltonCheckBox.TabIndex = 67;
+            DaltonCheckBox.Text = "Da";
+            DaltonCheckBox.UseVisualStyleBackColor = true;
+            DaltonCheckBox.CheckedChanged += DaltonCheckBox_CheckedChanged;
             // 
             // OxoCountThreshold_uvpd_label
             // 
@@ -855,6 +871,7 @@
             // 
             // YnaughtTab
             // 
+            YnaughtTab.Controls.Add(Ynaught_DaCheckBox);
             YnaughtTab.Controls.Add(BrowseGlycans_Button);
             YnaughtTab.Controls.Add(LoadInGlycanMasses_TextBox);
             YnaughtTab.Controls.Add(Ynaught_GlyCounterLogo);
@@ -911,6 +928,17 @@
             YnaughtTab.TabIndex = 1;
             YnaughtTab.Text = "Ynaught";
             YnaughtTab.UseVisualStyleBackColor = true;
+            // 
+            // Ynaught_DaCheckBox
+            // 
+            Ynaught_DaCheckBox.AutoSize = true;
+            Ynaught_DaCheckBox.Location = new Point(1131, 320);
+            Ynaught_DaCheckBox.Name = "Ynaught_DaCheckBox";
+            Ynaught_DaCheckBox.Size = new Size(40, 19);
+            Ynaught_DaCheckBox.TabIndex = 68;
+            Ynaught_DaCheckBox.Text = "Da";
+            Ynaught_DaCheckBox.UseVisualStyleBackColor = true;
+            Ynaught_DaCheckBox.CheckedChanged += Ynaught_DaCheckBox_CheckedChanged;
             // 
             // BrowseGlycans_Button
             // 
@@ -1012,7 +1040,7 @@
             // Ynaught_SNlabel
             // 
             Ynaught_SNlabel.AutoSize = true;
-            Ynaught_SNlabel.Location = new Point(1022, 355);
+            Ynaught_SNlabel.Location = new Point(1022, 350);
             Ynaught_SNlabel.Name = "Ynaught_SNlabel";
             Ynaught_SNlabel.Size = new Size(161, 15);
             Ynaught_SNlabel.TabIndex = 38;
@@ -1102,9 +1130,9 @@
             Ynaught_ppmTolLabel.Font = new Font("Segoe UI", 9F, FontStyle.Regular, GraphicsUnit.Point, 0);
             Ynaught_ppmTolLabel.Location = new Point(1022, 321);
             Ynaught_ppmTolLabel.Name = "Ynaught_ppmTolLabel";
-            Ynaught_ppmTolLabel.Size = new Size(84, 15);
+            Ynaught_ppmTolLabel.Size = new Size(92, 15);
             Ynaught_ppmTolLabel.TabIndex = 29;
-            Ynaught_ppmTolLabel.Text = "ppm tolerance";
+            Ynaught_ppmTolLabel.Text = "tolerance (ppm)";
             // 
             // Ynaught_ppmTolTextBox
             // 
@@ -1382,6 +1410,17 @@
             LoadInGlycoPepIDs_TextBox.Text = "Upload glycopeptide IDs (e.g., PSMs file) here: tab-delimited .txt with headers \"Spectrum Number\", \"Charge State\", \"Peptide Sequence\", and \"Modifications\"";
             LoadInGlycoPepIDs_TextBox.TextChanged += LoadInGlycoPepIDs_TextBox_TextChanged;
             // 
+            // ipsaCheckBox
+            // 
+            ipsaCheckBox.AutoSize = true;
+            ipsaCheckBox.Location = new Point(1038, 638);
+            ipsaCheckBox.Name = "ipsaCheckBox";
+            ipsaCheckBox.Size = new Size(159, 19);
+            ipsaCheckBox.TabIndex = 68;
+            ipsaCheckBox.Text = "Output IPSA Annotations";
+            ipsaCheckBox.UseVisualStyleBackColor = true;
+            ipsaCheckBox.CheckedChanged += checkBox1_CheckedChanged;
+            // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
@@ -1518,5 +1557,8 @@
         private Label OxoCountThreshold_uvpd_label;
         private Label uvpdTICfraction_Label;
         private Label PeakDepth_label_UVPD;
+        private CheckBox DaltonCheckBox;
+        private CheckBox Ynaught_DaCheckBox;
+        private CheckBox ipsaCheckBox;
     }
 }
